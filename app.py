@@ -79,7 +79,7 @@ def message_text(event):
     df = pd.DataFrame(data=d)
     reply = event.message.text
     if reply.isdigit():
-        indices = df[df['col1'] == int(message)].index
+        indices = df[df['col1'] == int(reply)].index
         for idx in indices:
             reply = f"Results --> {df.loc[idx, 'col2']}"
     with ApiClient(configuration) as api_client:
