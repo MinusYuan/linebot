@@ -77,8 +77,8 @@ def callback():
 def message_text(event):
     d = {'col1': range(100), 'col2': range(1000, 1100)}
     df = pd.DataFrame(data=d)
-    reply = message = event.message.text
-    if message.isdigit():
+    reply = event.message.text
+    if reply.isdigit():
         indices = df[df['col1'] == int(message)].index
         for idx in indices:
             reply = f"Results --> {df.loc[idx, 'col2']}"
@@ -87,7 +87,7 @@ def message_text(event):
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=event.message.text)]
+                messages=[TextMessage(text=reply)]
             )
         )
 
