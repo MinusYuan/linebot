@@ -13,6 +13,7 @@
 #  under the License.
 
 import os
+import pandas as pd
 import sys
 from argparse import ArgumentParser
 
@@ -74,6 +75,8 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
+    d = {'col1': range(100), 'col2': range(1000, 1100)}
+    print(type(event), dir(event), event.message.text)
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(

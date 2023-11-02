@@ -2,3 +2,4 @@ Flask
 Gunicorn
 requests
 line-bot-sdk
+pandas
