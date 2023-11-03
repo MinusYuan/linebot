@@ -82,8 +82,9 @@ def message_text(event):
         for idx in indices:
             reply = f"Results --> {df.loc[idx, 'col2']}"
     with ApiClient(configuration) as api_client:
-        print(f"user_id: {event.source.user_id}")
         line_bot_api = MessagingApi(api_client)
+        api_response = line_bot_api.get_followers(start="test123123423412", limit=300)
+        print(api_response)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
