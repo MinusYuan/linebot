@@ -15,6 +15,7 @@
 import os
 import pandas as pd
 import sys
+import requests
 from argparse import ArgumentParser
 
 from flask import Flask, request, abort
@@ -35,6 +36,9 @@ from linebot.v3.messaging import (
     ReplyMessageRequest,
     TextMessage
 )
+
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 
@@ -86,6 +90,25 @@ def message_text(event):
             )
         )
 
+@app.route("/healthcheck", methods=['GET'])
+def healthcheck():
+    return "OK"
+
+def keep_awake():
+    url = os.getenv('SELF_URL', None)
+    if not url:
+        print("URL Not FOUND.")
+        return
+    resp = requests.get(f"{url}/healthcheck")
+    print(f"Status code: {resp.status_code}")
+
+
+# Use scheduler to health check
+scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
+trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
+scheduler.add_job(keep_awake, trigger=trigger)
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
