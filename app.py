@@ -39,6 +39,7 @@ from linebot.v3.messaging import (
 
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
 
 app = Flask(__name__)
 
