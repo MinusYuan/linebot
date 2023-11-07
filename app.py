@@ -74,15 +74,10 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
-    d = {'col1': range(100), 'col2': range(1000, 1100)}
-    df = pd.DataFrame(data=d)
-    reply = event.message.text
-    if reply.isdigit():
-        indices = df[df['col1'] == int(reply)].index
-        for idx in indices:
-            reply = f"Results --> {df.loc[idx, 'col2']}"
+    user_id = event.source.user_id
+    if user_id == 'U3fbee86747976cc9eccdfbce7dda65d4':
+        return
     with ApiClient(configuration) as api_client:
-        user_id = event.source.user_id
         line_bot_api = MessagingApi(api_client)
         profile = line_bot_api.get_profile(user_id)
         print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
