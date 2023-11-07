@@ -61,6 +61,8 @@ def get_all_firestore_env():
     d = {}
     for k, v in os.environ.items():
         if k.startswith('CF'):
+            if 'private_key' in k:
+                v = v.replace('\\n', '\n')
             d[k[3:]] = v
     print(f"CF: {d}")
     return d
