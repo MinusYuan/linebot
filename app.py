@@ -41,6 +41,10 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
 app = Flask(__name__)
 
 # get channel_secret and channel_access_token from your environment variable
@@ -53,6 +57,13 @@ configuration = Configuration(
     access_token=channel_access_token
 )
 
+def get_all_firestore_env():
+    d = {}
+    for k, v in os.environ.items():
+        if k.startswith('CF'):
+            d[k] = v
+    print(f"CF: {d}")
+    return d
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -74,6 +85,7 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
+    print(f"DIR: {dir(db)}")
     user_id = event.source.user_id
     if user_id == 'U3fbee86747976cc9eccdfbce7dda65d4':
         return
@@ -107,6 +119,11 @@ trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
+
+cert = get_all_firestore_env()
+cred = credentials.Certificate(cert)
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
