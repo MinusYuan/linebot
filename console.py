@@ -1,4 +1,5 @@
 import os
+import random
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -40,12 +41,17 @@ class Console:
 ch <角色代碼> <手機號碼>
 """
 
-    def lookup(self, role, code):
-        doc = self.db.collection("customers").document(code).get()
-        if not doc.exists:
-            return "找不到此貨物"
+    def lookup(self, role, text):
+        customers_ref = self.db.collection("customers")
+        query = customers_ref.where(
+            filter=FieldFilter(
+                "Country", "==", text.capitalize()
+            )
+        ).get()
+        if not len(query):
+            return "找不到此區域的人"
 
-        d = doc.to_dict()
+        d = random.sample(doc, 1)[0].to_dict()
         if role in (1, 2):
             role_doc = self.db.collection("permissions").document(str(role)).get().to_dict()
             return str({k: v for k, v in d.items() if k == role_doc.get("cols")})
