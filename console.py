@@ -1,3 +1,4 @@
+import os
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -19,7 +20,7 @@ class Console:
         return d
 
     def get_current_role(self, uid):
-        doc = db.collection("users").document(uid)
+        doc = self.db.collection("users").document(uid)
         if doc.get().exists:
             return doc.get().to_dict().get("role") or 0
         else:
@@ -38,10 +39,11 @@ ch <角色代碼> <手機號碼>
 """
 
     def lookup(self, role, code):
-        doc = db.collection("customers").document(code)
+        doc = self.db.collection("customers").document(code)
 
     def console(self, uid, text):
         role = self.get_current_role(uid)
+        print(f"UID: {uid}, Role: {role}")
         if role >= 3: # Admin
             if text in ("說明", "指令"):
                 return self.user_guide().strip()
