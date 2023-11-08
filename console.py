@@ -73,7 +73,7 @@ ch <角色代碼> <手機號碼>
             if text in ("說明", "指令"):
                 return self.user_guide().strip()
             elif utils.check_command(text):
-                return self.set_phone_role(uid, text):
+                return self.set_phone_role(uid, text)
             return '指令錯誤。'
         if role >= 1:
             pass
