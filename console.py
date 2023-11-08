@@ -43,10 +43,12 @@ ch <角色代碼> <手機號碼>
 
     def console(self, uid, text):
         role = self.get_current_role(uid)
+        if role == 0:
+            return ''
         print(f"UID: {uid}, Role: {role}")
         if role >= 3: # Admin
             if text in ("說明", "指令"):
                 return self.user_guide().strip()
         if role >= 1:
             pass
-        return ''
+        return '此系統為貨物查詢系統'

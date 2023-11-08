@@ -77,6 +77,8 @@ def message_text(event):
     mess = event.message.text.strip()
     con = Console()
     reply = con.console(user_id, mess)
+    if not reply:
+        return
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         # profile = line_bot_api.get_profile(user_id)
@@ -84,7 +86,7 @@ def message_text(event):
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=event.message.text)]
+                messages=[TextMessage(text=reply)]
             )
         )
 
