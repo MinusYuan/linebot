@@ -1,4 +1,5 @@
 import os
+import pprint
 import random
 import firebase_admin
 from datetime import datetime
@@ -72,7 +73,7 @@ ch <角色代碼> <手機號碼>
             return f"找不到此電話號碼: {phone_no}"
         d = query[0].to_dict()
         self.db.collection("users").document(d["uid"]).set({**d, "role": role})
-        role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理層"}
+        role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理員"}
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
     def console(self, uid, text):
@@ -93,7 +94,7 @@ ch <角色代碼> <手機號碼>
             elif utils.check_ch_command(text):
                 return self.set_phone_role(uid, text)
             return '指令錯誤。'
-        return self.lookup(role, text)
+        return pprint.pformat(self.lookup(role, text))
 
 class utils:
     @classmethod

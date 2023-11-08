@@ -80,12 +80,13 @@ def message_text(event):
         return
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
-        # profile = line_bot_api.get_profile(user_id)
+        profile = line_bot_api.get_profile(user_id)
+        name = profile.display_name
         # print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=reply)]
+                messages=[TextMessage(text=f"{name} 您好\n所查詢的資料如下：\n{reply}")]
             )
         )
     con.close_client()
