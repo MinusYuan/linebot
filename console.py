@@ -51,7 +51,7 @@ ch <角色代碼> <手機號碼>
         if not len(query):
             return "找不到此區域的人"
 
-        d = random.sample(doc, 1)[0].to_dict()
+        d = random.sample(query, 1)[0].to_dict()
         if role in (1, 2):
             role_doc = self.db.collection("permissions").document(str(role)).get().to_dict()
             return str({k: v for k, v in d.items() if k == role_doc.get("cols")})
@@ -94,7 +94,7 @@ ch <角色代碼> <手機號碼>
 class utils:
     @classmethod
     def check_command_action(cls, text):
-        return text in ("說明", "指令") or text.startswith('ch')
+        return text in ("說明", "指令") or (text.startswith('ch') and check_ch_command(text))
 
     @classmethod
     def is_phone_no(cls, text):
