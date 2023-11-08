@@ -79,12 +79,12 @@ ch <角色代碼> <手機號碼>
         if role == 0:
             if utils.is_phone_no(text):
                 set_default_role(uid, text)
-                return "若為廠商，請通知管理員提升您的權限，謝謝。"
+                return "若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
             return ''
 
         # Admin
         if role >= 3 and utils.check_command_action(text):
-            if text in ("說明", "指令"):
+            if text in ("?", "說明", "指令"):
                 return self.user_guide().strip()
             elif utils.check_ch_command(text):
                 return self.set_phone_role(uid, text)
@@ -94,7 +94,7 @@ ch <角色代碼> <手機號碼>
 class utils:
     @classmethod
     def check_command_action(cls, text):
-        return text in ("說明", "指令") or (text.startswith('ch') and check_ch_command(text))
+        return text in ("?", "說明", "指令") or cls.check_ch_command(text)
 
     @classmethod
     def is_phone_no(cls, text):
@@ -104,7 +104,7 @@ class utils:
     def check_ch_command(cls, text):
         text_split = text.split(' ')
         if len(text_split) != 3:
-            return -1
+            return False
         cond_1 = text_split[0] == 'ch'
         cond_2 = text_split[1].isdigit() and len(text_split[1]) == 1 and 0 <= int(text_split[1]) <= 3
         cond_3 = cls.is_phone_no(text_split[2])
