@@ -91,9 +91,11 @@ class utils:
     @classmethod
     def check_command(cls, text):
         text_split = text.split(' ')
+        print(text_split)
         if len(text_split) != 3:
             return -1
         cond_1 = text_split[0] == 'ch'
         cond_2 = text_split[1].isdigit() and len(text_split[1]) and 0 <= int(text_split[1]) <= 3
         cond_3 = cls.is_phone_no(text_split[2])
+        print(cond_1, cond_2, cond_3)
         return 0 if cond_1 and cond_2 and cond_3 else -1
