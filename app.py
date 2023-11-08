@@ -75,7 +75,6 @@ def callback():
 def message_text(event):
     user_id = event.source.user_id
     mess = event.message.text.strip()
-    con = Console()
     reply = con.console(user_id, mess)
     if not reply:
         return
@@ -109,6 +108,8 @@ trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
+
+con = Console()
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
