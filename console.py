@@ -78,7 +78,7 @@ ch <角色代碼> <手機號碼>
         # 消費者目前無法查詢
         if role == 0:
             if utils.is_phone_no(text):
-                set_default_role(uid, text)
+                self.set_default_role(uid, text)
                 return "若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
             return ''
 
