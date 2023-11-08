@@ -41,7 +41,15 @@ ch <角色代碼> <手機號碼>
 """
 
     def lookup(self, role, code):
-        doc = self.db.collection("customers").document(code)
+        doc = self.db.collection("customers").document(code).get()
+        if not doc.exists():
+            return "找不到此貨物"
+
+        d = doc.to_dict()
+        if role in (1, 2):
+            role_doc = self.db.collection("permissions").document(str(role)).get().to_dict()
+            return str({k: v for k, v in d.items() if k == role_doc.get("cols")})
+        return str(d)
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
@@ -54,9 +62,9 @@ ch <角色代碼> <手機號碼>
         if not len(query):
             return f"找不到此電話號碼: {phone_no}"
         d = query[0].to_dict()
-        self.db.collection("users").document(uid).set({**d, "role": min(role, 3)})
-        role_dict = {'0': "消費者", '1': "廠商", '2': "員工", '3': "管理層"}
-        return f"已將{phone_no}設定為: {role_dict.get(role) or '錯誤'}"
+        self.db.collection("users").document(uid).set({**d, "role": role})
+        role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理層"}
+        return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
     def console(self, uid, text):
         role = self.get_current_role(uid)
@@ -75,9 +83,7 @@ ch <角色代碼> <手機號碼>
             elif utils.check_ch_command(text):
                 return self.set_phone_role(uid, text)
             return '指令錯誤。'
-        if role >= 1:
-            pass
-        return '此系統為貨物查詢系統'
+        return self.lookup(role, text)
 
 class utils:
     @classmethod
