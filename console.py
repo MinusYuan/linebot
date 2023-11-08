@@ -13,6 +13,9 @@ class Console:
         firebase_admin.initialize_app(cred)
         self.db = firestore.client()
 
+    def close(self):
+        self.db.close()
+
     def get_all_firestore_env(self):
         d = {}
         for k, v in os.environ.items():
@@ -23,8 +26,8 @@ class Console:
         return d
 
     def get_current_role(self, uid):
-        doc = self.db.collection("users").document(uid)
-        return doc.get().exists and doc.get().to_dict().get("role") or 0
+        doc = self.db.collection("users").document(uid).get().to_dict()
+        return doc and doc.get("role") or 0
 
     def set_default_role(self, uid, text):
         doc = self.db.collection("users").document(uid)
@@ -48,14 +51,14 @@ ch <角色代碼> <手機號碼>
             filter=FieldFilter(
                 "Country", "==", text.capitalize()
             )
-        ).get()
+        ).limit(1).get()
         if not len(query):
             return "找不到此區域的人"
 
         d = random.sample(query, 1)[0].to_dict()
         if role in (1, 2):
-            role_doc = self.db.collection("permissions").document(str(role)).get().to_dict()
-            return str({k: v for k, v in d.items() if k == role_doc.get("cols")})
+            get_cols = {1: "", 2: ""}
+            return str({k: v for k, v in d.items() if k == get_cols.get("cols")})
         return str(d)
 
     def set_phone_role(self, uid, text):
