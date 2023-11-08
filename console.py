@@ -11,9 +11,8 @@ class Console:
         cert = self.get_all_firestore_env()
         cred = credentials.Certificate(cert)
         firebase_admin.initialize_app(cred)
-        self.db = firestore.client()
 
-    def close(self):
+    def close_client(self):
         self.db.close()
 
     def get_all_firestore_env(self):
@@ -77,6 +76,7 @@ ch <角色代碼> <手機號碼>
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
     def console(self, uid, text):
+        self.db = firestore.client()
         role = self.get_current_role(uid)
         print(f"UID: {uid}, Role: {role}")
         # 消費者目前無法查詢

@@ -73,7 +73,6 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
-    con = Console()
     user_id = event.source.user_id
     mess = event.message.text.strip()
     reply = con.console(user_id, mess)
@@ -89,7 +88,7 @@ def message_text(event):
                 messages=[TextMessage(text=reply)]
             )
         )
-    con.close()
+    con.close_client()
 
 @app.route("/healthcheck", methods=['GET'])
 def healthcheck():
@@ -110,6 +109,8 @@ trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
+
+con = Console()
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
