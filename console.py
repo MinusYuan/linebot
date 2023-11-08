@@ -42,7 +42,7 @@ ch <角色代碼> <手機號碼>
 
     def lookup(self, role, code):
         doc = self.db.collection("customers").document(code).get()
-        if not doc.exists():
+        if not doc.exists:
             return "找不到此貨物"
 
         d = doc.to_dict()
