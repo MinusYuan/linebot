@@ -71,7 +71,7 @@ ch <角色代碼> <手機號碼>
         if not len(query):
             return f"找不到此電話號碼: {phone_no}"
         d = query[0].to_dict()
-        self.db.collection("users").document(uid).set({**d, "role": role})
+        self.db.collection("users").document(d["uid"]).set({**d, "role": role})
         role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理層"}
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
