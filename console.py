@@ -81,7 +81,14 @@ ch <角色代碼> <手機號碼>
         role = self.get_current_role(uid)
         print(f"UID: {uid}, Role: {role}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
-        if not text.replace(' ', '').isalnum() or len(chinese_character):
+
+        # Admin
+        if role >= 3 and utils.check_command_action(text):
+            if text in ("?", "說明", "指令"):
+                return self.user_guide().strip()
+            elif utils.check_ch_command(text):
+                return self.set_phone_role(uid, text)
+        elif not text.replace(' ', '').isalnum() or len(chinese_character):
             return ''
 
         # 消費者目前無法查詢
@@ -91,13 +98,7 @@ ch <角色代碼> <手機號碼>
                 return "若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
             return ''
 
-        # Admin
-        if role >= 3 and utils.check_command_action(text):
-            if text in ("?", "說明", "指令"):
-                return self.user_guide().strip()
-            elif utils.check_ch_command(text):
-                return self.set_phone_role(uid, text)
-            return '指令錯誤。'
+
         return self.lookup(role, text)
 
 class utils:
