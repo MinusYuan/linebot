@@ -1,4 +1,5 @@
 import os
+import re
 import random
 import firebase_admin
 from datetime import datetime
@@ -79,7 +80,8 @@ ch <角色代碼> <手機號碼>
         self.db = firestore.client()
         role = self.get_current_role(uid)
         print(f"UID: {uid}, Role: {role}")
-        if not text.replace(' ', '').isalnum():
+        chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
+        if not text.replace(' ', '').isalnum() or len(chinese_character):
             return ''
 
         # 消費者目前無法查詢
