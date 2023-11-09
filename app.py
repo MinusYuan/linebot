@@ -37,7 +37,7 @@ from linebot.v3.messaging import (
     TextMessage
 )
 
-from linebot.models import UnFollowEvent
+from linebot.models import UnfollowEvent
 
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -73,10 +73,10 @@ def callback():
 
     return 'OK'
 
-@handler.add(UnFollowEvent)
+@handler.add(UnfollowEvent)
 def handle_unfollow(event):
     user_id = event.source.user_id
-    print(f"UnFollowEvent - user_id: {user_id}")
+    print(f"UnfollowEvent - user_id: {user_id}")
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
