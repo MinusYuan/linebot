@@ -53,13 +53,13 @@ ch <角色代碼> <手機號碼>
             )
         ).limit(1).get()
         if not len(query):
-            return "找不到此區域的人"
+            return "請重新輸入要查詢的區域，如Taiwan、Brazil ... 等"
 
         d = random.sample(query, 1)[0].to_dict()
         if role in (1, 2):
             get_cols = {1: ["First Name","Last Name","City"], 2: ["First Name","Last Name","City","Company","Phone 1"]}
-            return str({k: v for k, v in d.items() if k in get_cols[role]})
-        return str(d)
+            d = {k: v for k, v in d.items() if k in get_cols[role]}
+        return "\n".join([f"{k} -> {v}" for k, v in d.items()])
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
