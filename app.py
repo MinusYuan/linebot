@@ -90,8 +90,6 @@ def message_text(event):
         line_bot_api = MessagingApi(api_client)
         profile = line_bot_api.get_profile(user_id)
         name = profile.display_name
-        if action:
-            
         # print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
