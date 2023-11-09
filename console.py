@@ -58,7 +58,7 @@ ch <角色代碼> <手機號碼>
         if role in (1, 2):
             get_cols = {1: ["First Name","Last Name","City"], 2: ["First Name","Last Name","City","Company","Phone 1"]}
             d = {k: v for k, v in d.items() if k in get_cols[role]}
-        return [f"{k} -> {v}" for k, v in d.items()]
+        return "\n".join([f"{k} -> {v}" for k, v in d.items()])
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
@@ -93,7 +93,7 @@ ch <角色代碼> <手機號碼>
             elif utils.check_ch_command(text):
                 return self.set_phone_role(uid, text)
             return '指令錯誤。'
-        return pprint.pformat(self.lookup(role, text))
+        return self.lookup(role, text)
 
 class utils:
     @classmethod
