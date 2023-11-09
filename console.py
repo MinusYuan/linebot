@@ -79,6 +79,9 @@ ch <角色代碼> <手機號碼>
         self.db = firestore.client()
         role = self.get_current_role(uid)
         print(f"UID: {uid}, Role: {role}")
+        if text.replace(' ', '').isalpha():
+            return ''
+
         # 消費者目前無法查詢
         if role == 0:
             if utils.is_phone_no(text):
