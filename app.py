@@ -37,6 +37,8 @@ from linebot.v3.messaging import (
     TextMessage
 )
 
+from linebot.models import UnFollowEvent
+
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
@@ -71,6 +73,11 @@ def callback():
 
     return 'OK'
 
+@handler.add(UnFollowEvent)
+def handle_unfollow(event):
+    user_id = event.source.user_id
+    print(f"UnFollowEvent - user_id: {user_id}")
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
     user_id = event.source.user_id
@@ -78,15 +85,18 @@ def message_text(event):
     reply = con.console(user_id, mess)
     if not reply:
         return
+
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         profile = line_bot_api.get_profile(user_id)
         name = profile.display_name
+        if action:
+            
         # print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=f"{name} 您好\n所查詢的資料{mess}如下：\n{reply}")]
+                messages=[TextMessage(text=f"{name} 您好\n{reply}")]
             )
         )
     con.close_client()

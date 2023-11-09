@@ -88,18 +88,15 @@ ch <角色代碼> <手機號碼>
                 return self.user_guide().strip()
             elif utils.check_ch_command(text):
                 return self.set_phone_role(uid, text)
-        elif not text.replace(' ', '').isalnum() or len(chinese_character):
+        elif not text.replace(' ', '').isalnum() or len(chinese_character) or (role == 0 and not utils.is_phone_no(text)):
             return ''
 
         # 消費者目前無法查詢
-        if role == 0:
-            if utils.is_phone_no(text):
-                self.set_default_role(uid, text)
-                return "若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
-            return ''
+        if role == 0 and utils.is_phone_no(text):
+            self.set_default_role(uid, text)
+            return "若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
 
-
-        return self.lookup(role, text)
+        return f"所查詢的資料{text}如下：\n{self.lookup(role, text)}"
 
 class utils:
     @classmethod
