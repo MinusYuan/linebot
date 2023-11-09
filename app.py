@@ -82,7 +82,10 @@ def message_text(event):
         line_bot_api = MessagingApi(api_client)
         profile = line_bot_api.get_profile(user_id)
         name = profile.display_name
-        reply = '\n'.join(reply) if isinstance(reply, list) else reply
+        print(f"reply: {reply}, type: {type(reply)}")
+        if isinstance(reply, list):
+            reply = '%0D%0A'.join(reply)
+        print(f"reply: {reply}, type: {type(reply)}")
         # print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(

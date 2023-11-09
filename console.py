@@ -1,5 +1,4 @@
 import os
-import pprint
 import random
 import firebase_admin
 from datetime import datetime
