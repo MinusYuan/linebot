@@ -59,7 +59,7 @@ ch <角色代碼> <手機號碼>
         if role in (1, 2):
             get_cols = {1: ["First Name","Last Name","City"], 2: ["First Name","Last Name","City","Company","Phone 1"]}
             d = {k: v for k, v in d.items() if k in get_cols[role]}
-        return "\n".join([f"{k} -> {v}" for k, v in d.items()])
+        return "\n".join([f"{k} -> \n\t{v}" for k, v in d.items()])
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
