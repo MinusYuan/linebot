@@ -86,7 +86,7 @@ def message_text(event):
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=f"{name} 您好\n所查詢的資料如下：\n{reply}")]
+                messages=[TextMessage(text=f"{name} 您好\n所查詢的資料{mess}如下：\n{reply}")]
             )
         )
     con.close_client()
