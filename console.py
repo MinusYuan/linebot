@@ -94,7 +94,7 @@ rm <手機號碼>
             else:
                 price = f"{d['wholesale']} {d['price']}"
 
-            res.append(f"{idx}) name\n  -> {price} ({number})")
+            res.append(f"{idx}) {name}\n  -> {price} ({number})")
         results = "\n".join(res)
         return f"所查詢的資料{text}如下：\n{results}"
 

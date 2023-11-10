@@ -110,8 +110,6 @@ def keep_awake():
         print("URL Not FOUND.")
         return
     resp = requests.get(f"{url}/healthcheck")
-    print(f"Status code: {resp.status_code}")
-
 
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
