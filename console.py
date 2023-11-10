@@ -91,11 +91,11 @@ rm <手機號碼>
                 number = "8+"
 
             if role == 1:
-                result_s = f"{d['wholesale']}/條\n({number})"
+                result_s = f"{d['wholesale']}/條\n庫存({number})"
             elif role == 2:
-                result_s = f"現金價 {d['price']}\n({number})"
+                result_s = f"現金價 {d['price']}\n庫存({number})"
             else:
-                result_s = f"現金價 {d['price']}\n批發價 {d['wholesale']}\n({number})"
+                result_s = f"現金價 {d['price']}\n批發價 {d['wholesale']}\n庫存({number})"
 
             res.append(f"{idx}) {name}\n{result_s}")
         results = "\n".join(res)
