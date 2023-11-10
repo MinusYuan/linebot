@@ -87,7 +87,8 @@ rm <手機號碼>
         if role in (1, 2):
             get_cols = {1: ["First Name","Last Name","City"], 2: ["First Name","Last Name","City","Company","Phone 1"]}
             d = {k: v for k, v in d.items() if k in get_cols[role]}
-        return "\n".join([f"{i}) {k} \n  -> {v}" for i, (k, v) in enumerate(d.items())])
+        results = "\n".join([f"{i}) {k} \n  -> {v}" for i, (k, v) in enumerate(d.items())])
+        return f"所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
@@ -125,7 +126,7 @@ rm <手機號碼>
         if role == 0 and utils.is_phone_no(text):
             return self.set_default_role(uid, text)
 
-        return f"所查詢的資料{text}如下：\n{self.lookup(role, text)}"
+        return self.lookup(role, text)
 
 class utils:
     @classmethod
