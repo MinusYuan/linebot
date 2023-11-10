@@ -164,6 +164,7 @@ class utils:
         text_split = text.split(' ')
         if len(text_split) != 3:
             return False
+        print(f"text_split: {text_split}", text_split[0] == 'ch')
         cond_1 = text_split[0] == 'ch'
         cond_2 = text_split[1].isdigit() and len(text_split[1]) == 1 and 0 <= int(text_split[1]) <= 3
         cond_3 = cls.is_phone_no(text_split[-1])
