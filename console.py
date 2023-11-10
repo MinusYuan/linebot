@@ -78,7 +78,7 @@ RM <手機號碼>
         prod_ref = self.db.collection("products")
         query_lst = prod_ref.where(
             filter=FieldFilter(
-                "spec", "==", text
+                "spec", "array-contains", text
             )
         ).get()
         if not len(query_lst):
@@ -152,7 +152,7 @@ RM <手機號碼>
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        return text.isdigit() and 4 < len(text) < 9
+        return (text.isdigit() and 4 < len(text) < 9) or re.findall(r'[0-9]{3}/[0-9]{2}', text)
 
     @classmethod
     def check_command_action(cls, text):
