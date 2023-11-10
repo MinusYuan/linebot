@@ -36,7 +36,7 @@ class Console:
                 "phone_number", "==", text
             )
         ).limit(1).get()
-        if len(query) and query.to_dict()['uid'] != uid:
+        if len(query) and query[0].to_dict()['uid'] != uid:
             return "此電話號碼已被使用，請確認電話號碼是否正確或者請洽管理員。"
 
         doc = users_ref.document(uid)
