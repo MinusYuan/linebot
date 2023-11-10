@@ -77,7 +77,7 @@ rm <手機號碼>
         prod_ref = self.db.collection("products")
         query_lst = prod_ref.where(
             filter=FieldFilter(
-                "spec", "==", text.capitalize()
+                "spec", "==", text
             )
         ).get()
         if not len(query_lst):
@@ -93,7 +93,7 @@ rm <手機號碼>
                 price = d['price']
             else:
                 price = f"{d['wholesale']} {d['price']}"
-                
+
             res.append(f"{idx}) name\n    -> {price} ({number})")
         results = "\n".join(res)
         return f"所查詢的資料{text}如下：\n{results}"
@@ -130,7 +130,7 @@ rm <手機號碼>
         elif not utils.check_spec_command(text) or \
                 len(chinese_character) or \
                 (role == 0 and not utils.is_phone_no(text)):
-            return '請輸入規格，謝謝。'
+            return '此系統為價格查詢系統，請輸入規格，謝謝。'
 
         # 消費者目前無法查詢
         if role == 0 and utils.is_phone_no(text):
