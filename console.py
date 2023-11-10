@@ -144,7 +144,7 @@ RM <手機號碼>
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        return text.isdigit() and 4 < len(text) < 8
+        return text.isdigit() and 4 < len(text) < 9
 
     @classmethod
     def check_command_action(cls, text):
