@@ -26,7 +26,7 @@ class Console:
 
     def get_current_role(self, uid):
         d = self.db.collection("users").document(uid).get().to_dict()
-        return d, d.get("search_cnt", 0) if d else {"role": 0}, 0
+        return d or {"role": 0}
 
     def set_default_role(self, uid, text):
         users_ref = self.db.collection("users")
@@ -123,7 +123,7 @@ RM <手機號碼>
 
     def console(self, uid, text):
         self.db = firestore.client()
-        d, role_search_cnt = self.get_current_role(uid)
+        d = self.get_current_role(uid)
         role = d.get("role")
         print(f"UID: {uid}, Role: {role}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
@@ -145,7 +145,7 @@ RM <手機號碼>
         if role == 0 and utils.is_phone_no(text):
             return self.set_default_role(uid, text)
 
-        d["search_cnt"] += 1
+        d["search_cnt"] = d.get("search_cnt", 0) + 1
         self.set_search_cnt(uid, d)
         return self.lookup(role, text)
 
