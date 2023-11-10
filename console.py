@@ -89,7 +89,7 @@ rm <手機號碼>
             name, number = d['item_name'], d['stock_no']
             if number > 8:
                 number = "8+"
-                
+
             if role == 1:
                 result_s = f"{d['wholesale']}/條\n({number})"
             elif role == 2:
@@ -97,7 +97,7 @@ rm <手機號碼>
             else:
                 result_s = f"現金價 {d['price']}\n批發價 {d['wholesale']}\n({number})"
 
-            res.append(f"{idx}) {name}\n{result_s})")
+            res.append(f"{idx}) {name}\n{result_s}")
         results = "\n".join(res)
         return f"所查詢的資料{text}如下：\n{results}"
 
