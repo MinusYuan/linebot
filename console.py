@@ -1,6 +1,5 @@
 import os
 import re
-import random
 import firebase_admin
 from datetime import datetime
 from firebase_admin import credentials
@@ -75,20 +74,22 @@ rm <手機號碼>
         return f"已將 {phone_no} 刪除"
 
     def lookup(self, role, text):
-        customers_ref = self.db.collection("customers")
-        query = customers_ref.where(
+        prod_ref = self.db.collection("products")
+        query_lst = prod_ref.where(
             filter=FieldFilter(
-                "Country", "==", text.capitalize()
+                "spec", "==", text.capitalize()
             )
-        ).limit(1).get()
-        if not len(query):
+        ).get()
+        if not len(query_lst):
             return "請重新輸入要查詢的區域，如Taiwan、Brazil ... 等"
 
-        d = random.sample(query, 1)[0].to_dict()
-        if role in (1, 2):
-            get_cols = {1: ["First Name","Last Name","City"], 2: ["First Name","Last Name","City","Company","Phone 1"]}
-            d = {k: v for k, v in d.items() if k in get_cols[role]}
-        results = "\n".join([f"{i}) {k} \n  -> {v}" for i, (k, v) in enumerate(d.items())])
+        res = []
+        for idx, query in enumerate(query_lst, 1):
+            d = query.to_dict()
+            name, number = d['item_name'], d['stock_no']
+            price = d['price'] if role == 1 else d['wholesale']
+            res.append(f"{idx}) name\n    -> {price} {number}")
+        results = "\n".join(res)
         return f"所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
