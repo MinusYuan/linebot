@@ -51,8 +51,8 @@ class Console:
     def user_guide(self):
         return f"""
 角色代碼 --> (0:消費者,1:廠商,2:員工,3:管理層)
-ch <角色代碼> <手機號碼>
-rm <手機號碼>
+CH <角色代碼> <手機號碼>
+RM <手機號碼>
 """
     
     def delete_profile(self, uid):
@@ -99,7 +99,7 @@ rm <手機號碼>
 
             res.append(f"{idx}) {name}\n{result_s}")
         results = "\n".join(res)
-        return f"所查詢的資料{text}如下：\n{results}"
+        return f"所查詢的資料{text}如下：\n{results}\n下單連結:\nhttps://liff.line.me/1645278921-kWRPP32q/?accountId=9527orz"
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
@@ -123,11 +123,7 @@ rm <手機號碼>
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
 
         # Admin
-        print(f"Check: {role >= 3 and utils.check_command_action(text)}")
         if role >= 3 and utils.check_command_action(text):
-            print(f'Check - 1: {text in ("?", "說明", "指令")}')
-            print(f'Check - 2: {utils.check_ch_command(text)}')
-            print(f'Check - 3: {utils.check_rm_command(text)}')
             if text in ("?", "說明", "指令"):
                 return self.user_guide().strip()
             elif utils.check_ch_command(text):
@@ -148,8 +144,7 @@ rm <手機號碼>
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        return (len(text) == 7 and re.findall(r'[0-9]{7}', text)) or \
-               (len(text) == 5 and re.findall(r'[0-9]{5}', text))
+        return text.isdigit() and 4 < len(text) < 8
 
     @classmethod
     def check_command_action(cls, text):
@@ -164,11 +159,9 @@ class utils:
         text_split = text.split(' ')
         if len(text_split) != 3:
             return False
-        print(f"text_split: {text_split}", text_split[0] == 'ch')
-        cond_1 = text_split[0] == 'ch'
+        cond_1 = text_split[0] == 'CH'
         cond_2 = text_split[1].isdigit() and len(text_split[1]) == 1 and 0 <= int(text_split[1]) <= 3
         cond_3 = cls.is_phone_no(text_split[-1])
-        print(cond_1, cond_2, cond_3)
         return cond_1 and cond_2 and cond_3
 
     @classmethod
@@ -176,6 +169,6 @@ class utils:
         text_split = text.split(' ')
         if len(text_split) != 2:
             return False
-        cond_1 = text_split[0] == 'rm'
+        cond_1 = text_split[0] == 'RM'
         cond_2 = cls.is_phone_no(text_split[-1])
         return cond_1 and cond_2
