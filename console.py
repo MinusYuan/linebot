@@ -81,7 +81,7 @@ rm <手機號碼>
             )
         ).get()
         if not len(query_lst):
-            return "請重新輸入要查詢的規格，如235/55R18 ... 等"
+            return f"目前查無此規格 {text}。\n請重新輸入要查詢的規格，如235/55R18 ... 等"
 
         res = []
         for idx, query in enumerate(query_lst, 1):
@@ -141,7 +141,7 @@ rm <手機號碼>
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        return re.findall(r'[0-9]{3}/[0-9]{2}R[0-9]{2}', text)
+        return re.findall(r'[0-9]{3}/[0-9]{2}R[0-9]{2}', text) or re.findall(r'[0-9]{3}R[0-9]{2}', text)
 
     @classmethod
     def check_command_action(cls, text):
