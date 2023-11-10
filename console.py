@@ -149,7 +149,7 @@ class utils:
     @classmethod
     def check_spec_command(cls, text):
         return (len(text) == 7 and re.findall(r'[0-9]{7}', text)) or \
-               (len(text) == 6 and re.findall(r'[0-9]{3}R[0-9]{2}', text))
+               (len(text) == 5 and re.findall(r'[0-9]{5}', text))
 
     @classmethod
     def check_command_action(cls, text):
@@ -167,6 +167,7 @@ class utils:
         cond_1 = text_split[0] == 'ch'
         cond_2 = text_split[1].isdigit() and len(text_split[1]) == 1 and 0 <= int(text_split[1]) <= 3
         cond_3 = cls.is_phone_no(text_split[-1])
+        print(cond_1, cond_2, cond_3)
         return cond_1 and cond_2 and cond_3
 
     @classmethod
