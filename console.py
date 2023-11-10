@@ -26,7 +26,7 @@ class Console:
 
     def get_current_role(self, uid):
         doc = self.db.collection("users").document(uid).get().to_dict()
-        return doc and doc.get("role") or 0
+        return doc, doc.get("search_cnt", 0) and doc.get("role") or 0, 0
 
     def set_default_role(self, uid, text):
         users_ref = self.db.collection("users")
@@ -43,7 +43,8 @@ class Console:
             {
                 "uid": uid, "role": 0, "phone_number": text,
                 "create_dt": datetime.now().strftime("%Y-%m-%d"),
-                "create_ts": datetime.now().strftime("%H:%M:%S")
+                "create_ts": datetime.now().strftime("%H:%M:%S"),
+                "search_cnt": 0
             }
         )
         return "設定成功。\n若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
@@ -81,7 +82,7 @@ RM <手機號碼>
             )
         ).get()
         if not len(query_lst):
-            return f"目前查無此規格 {text}。"
+            return f"目前查無此規格{text}，請洽管理人員。"
 
         res = []
         for idx, query in enumerate(query_lst, 1):
@@ -116,9 +117,14 @@ RM <手機號碼>
         role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理員"}
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
+    def set_search_cnt(self, uid, d):
+        user_doc = self.db.collection("users").document(uid)
+        user_doc.set(d)
+
     def console(self, uid, text):
         self.db = firestore.client()
-        role = self.get_current_role(uid)
+        d, role_search_cnt = self.get_current_role(uid)
+        role = d.get("role")
         print(f"UID: {uid}, Role: {role}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
 
@@ -139,6 +145,8 @@ RM <手機號碼>
         if role == 0 and utils.is_phone_no(text):
             return self.set_default_role(uid, text)
 
+        d["search_cnt"] += 1
+        self.set_search_cnt(uid, d)
         return self.lookup(role, text)
 
 class utils:
