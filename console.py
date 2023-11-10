@@ -88,13 +88,13 @@ rm <手機號碼>
             d = query.to_dict()
             name, number = d['item_name'], d['stock_no']
             if role == 1:
-                price = d['wholesale']
+                result_s = f"{d['wholesale']}/條\n({number})"
             elif role == 2:
-                price = d['price']
+                result_s = f"現金價 {d['price']}\n({number})"
             else:
-                price = f"{d['wholesale']} {d['price']}"
+                result_s = f"現金價 {d['price']}\n批發價 {d['wholesale']}\n({number})"
 
-            res.append(f"{idx}) {name}\n  -> {price} ({number})")
+            res.append(f"{idx}) {name}\n{result_s})")
         results = "\n".join(res)
         return f"所查詢的資料{text}如下：\n{results}"
 
