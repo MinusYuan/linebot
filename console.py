@@ -119,7 +119,7 @@ rm <手機號碼>
             elif utils.check_ch_command(text):
                 return self.set_phone_role(uid, text)
             elif utils.check_rm_command(text):
-                return self.rm_phone_role(uid, text)
+                return self.rm_phone_role(text)
         elif not text.replace(' ', '').isalnum() or len(chinese_character) or (role == 0 and not utils.is_phone_no(text)):
             return ''
 
