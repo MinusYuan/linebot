@@ -43,10 +43,11 @@ class Console:
         doc.set(
             {
                 "uid": uid, "role": 0, "phone_number": text,
-                "create_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "create_dt": datetime.now().strftime("%Y-%m-%d"),
+                "create_ts": datetime.now().strftime("%H:%M:%S")
             }
         )
-        return "若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
+        return "設定成功。\n若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
         
     def user_guide(self):
         return f"""
@@ -144,7 +145,7 @@ class utils:
             return False
         cond_1 = text_split[0] == 'ch'
         cond_2 = text_split[1].isdigit() and len(text_split[1]) == 1 and 0 <= int(text_split[1]) <= 3
-        cond_3 = cls.is_phone_no(text_split[2])
+        cond_3 = cls.is_phone_no(text_split[-1])
         return cond_1 and cond_2 and cond_3
 
     @classmethod
@@ -153,5 +154,5 @@ class utils:
         if len(text_split) != 2:
             return False
         cond_1 = text_split[0] == 'rm'
-        cond_2 = cls.is_phone_no(text_split[2])
+        cond_2 = cls.is_phone_no(text_split[-1])
         return cond_1 and cond_2
