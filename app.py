@@ -76,7 +76,8 @@ def callback():
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
     user_id = event.source.user_id
-    print(f"UnfollowEvent - user_id: {user_id}")
+    con.delete_profile(user_id)
+    con.close_client()
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
