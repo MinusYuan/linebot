@@ -81,14 +81,20 @@ rm <手機號碼>
             )
         ).get()
         if not len(query_lst):
-            return "請重新輸入要查詢的區域，如Taiwan、Brazil ... 等"
+            return "請重新輸入要查詢的規格，如235/55R18 ... 等"
 
         res = []
         for idx, query in enumerate(query_lst, 1):
             d = query.to_dict()
             name, number = d['item_name'], d['stock_no']
-            price = d['price'] if role == 1 else d['wholesale']
-            res.append(f"{idx}) name\n    -> {price} {number}")
+            if role == 1:
+                price = d['wholesale']
+            elif role == 2:
+                price = d['price']
+            else:
+                price = f"{d['wholesale']} {d['price']}"
+                
+            res.append(f"{idx}) name\n    -> {price} ({number})")
         results = "\n".join(res)
         return f"所查詢的資料{text}如下：\n{results}"
 
@@ -124,7 +130,7 @@ rm <手機號碼>
         elif not utils.check_spec_command(text) or \
                 len(chinese_character) or \
                 (role == 0 and not utils.is_phone_no(text)):
-            return ''
+            return '請輸入規格，謝謝。'
 
         # 消費者目前無法查詢
         if role == 0 and utils.is_phone_no(text):
