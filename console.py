@@ -26,7 +26,7 @@ class Console:
 
     def get_current_role(self, uid):
         doc = self.db.collection("users").document(uid).get().to_dict()
-        return doc, doc.get("search_cnt", 0) and doc.get("role") or 0, 0
+        return doc, doc.get("search_cnt", 0) or {"role": 0}, 0
 
     def set_default_role(self, uid, text):
         users_ref = self.db.collection("users")
