@@ -123,7 +123,11 @@ rm <手機號碼>
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
 
         # Admin
+        print(f"Check: {role >= 3 and utils.check_command_action(text)}")
         if role >= 3 and utils.check_command_action(text):
+            print(f'Check - 1: {text in ("?", "說明", "指令")}')
+            print(f'Check - 2: {utils.check_ch_command(text)}')
+            print(f'Check - 3: {utils.check_rm_command(text)}')
             if text in ("?", "說明", "指令"):
                 return self.user_guide().strip()
             elif utils.check_ch_command(text):
@@ -144,7 +148,8 @@ rm <手機號碼>
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        return re.findall(r'[0-9]{3}/[0-9]{2}R[0-9]{2}', text) or re.findall(r'[0-9]{3}R[0-9]{2}', text)
+        return (len(text) == 7 and re.findall(r'[0-9]{7}', text)) or \
+               (len(text) == 6 and re.findall(r'[0-9]{3}R[0-9]{2}', text))
 
     @classmethod
     def check_command_action(cls, text):
