@@ -121,7 +121,9 @@ rm <手機號碼>
                 return self.set_phone_role(uid, text)
             elif utils.check_rm_command(text):
                 return self.rm_phone_role(text)
-        elif not text.replace(' ', '').isalnum() or len(chinese_character) or (role == 0 and not utils.is_phone_no(text)):
+        elif not utils.check_spec_command(text) or \
+                len(chinese_character) or \
+                (role == 0 and not utils.is_phone_no(text)):
             return ''
 
         # 消費者目前無法查詢
@@ -131,6 +133,10 @@ rm <手機號碼>
         return self.lookup(role, text)
 
 class utils:
+    @classmethod
+    def check_spec_command(cls, text):
+        return re.findall(r'[0-9]{3}/[0-9]{2}R[0-9]{2}', text)
+
     @classmethod
     def check_command_action(cls, text):
         return text in ("?", "說明", "指令") or cls.check_ch_command(text) or cls.check_rm_command(text)

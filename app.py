@@ -82,7 +82,7 @@ def handle_unfollow(event):
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
     user_id = event.source.user_id
-    mess = event.message.text.strip()
+    mess = event.message.text.strip().upper()
     reply = con.console(user_id, mess)
     if not reply:
         return
