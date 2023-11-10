@@ -87,7 +87,7 @@ rm <手機號碼>
         for idx, query in enumerate(query_lst, 1):
             d = query.to_dict()
             name, number = d['item_name'], d['stock_no']
-            if number > 8:
+            if role in (1, 2) and number > 8:
                 number = "8+"
 
             if role == 1:
