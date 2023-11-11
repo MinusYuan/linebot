@@ -81,8 +81,6 @@ RM <手機號碼>
             "spec", ">=", spec_text
         ).where(
             "spec", "<=", spec_text + '\uf8ff'
-        ).where(
-            "stock_no", ">", 0
         ).get()
         if not len(query_lst):
             return f"目前查無此規格{text}，請洽管理人員。"
