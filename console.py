@@ -76,10 +76,11 @@ RM <手機號碼>
 
     def lookup(self, role, text):
         prod_ref = self.db.collection("products")
+        spec_text = text.replace('/', '')
         query_lst = prod_ref.where(
-            filter=FieldFilter(
-                "spec", "array_contains", text
-            )
+            "spec", ">=", spec_text
+        ).where(
+            "spec", "<=", spec_text + '\uf8ff'
         ).get()
         if not len(query_lst):
             return f"目前查無此規格{text}，請洽管理人員。"
