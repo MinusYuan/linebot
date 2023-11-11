@@ -78,7 +78,7 @@ RM <手機號碼>
         prod_ref = self.db.collection("products")
         query_lst = prod_ref.where(
             filter=FieldFilter(
-                "spec", "array-contains", text
+                "spec", "array_contains", text
             )
         ).get()
         if not len(query_lst):
