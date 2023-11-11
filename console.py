@@ -81,6 +81,8 @@ RM <手機號碼>
             "spec", ">=", spec_text
         ).where(
             "spec", "<=", spec_text + '\uf8ff'
+        ).where(
+            "stock_no", ">", 0
         ).get()
         if not len(query_lst):
             return f"目前查無此規格{text}，請洽管理人員。"
@@ -137,14 +139,12 @@ RM <手機號碼>
                 return self.set_phone_role(uid, text)
             elif utils.check_rm_command(text):
                 return self.rm_phone_role(text)
+        elif role == 0 and utils.is_phone_no(text): # 消費者目前無法查詢
+            return self.set_default_role(uid, text)
         elif not utils.check_spec_command(text) or \
                 len(chinese_character) or \
                 (role == 0 and not utils.is_phone_no(text)):
             return ''
-
-        # 消費者目前無法查詢
-        if role == 0 and utils.is_phone_no(text):
-            return self.set_default_role(uid, text)
 
         d["search_cnt"] = d.get("search_cnt", 0) + 1
         self.set_search_cnt(uid, d)
