@@ -11,6 +11,7 @@ class Console:
         cert = self.get_all_firestore_env()
         cred = credentials.Certificate(cert)
         firebase_admin.initialize_app(cred)
+        self.return_url = os.getenv('warehouse_url')
 
     def close_client(self):
         self.db.close()
@@ -82,27 +83,28 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
             "spec", "==", spec_text
         ).get()
         if not len(query_lst):
-            return f"目前查無此規格{text}，請洽管理人員。"
+            return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
 
         res = []
         for idx, query in enumerate(query_lst, 1):
             d = query.to_dict()
             name, number = d['item_name'], d['stock_no']
+            item_year = d['item_year']
             if role == 1 and number > 8:
                 number = "8+"
 
             if role == 1:
-                result_s = f"批發價 {d['wholesale']}/條\n庫存({number})"
+                result_s = f"批發價 {d['wholesale']}/條\n現貨庫存({number})"
             elif role == 2:
-                result_s = f"現金價 {d['price']}\n庫存({number})"
+                result_s = f"現金價 {d['case_price']}\n庫存({number})"
             else:
-                result_s = f"現金價 {d['price']}\n批發價 {d['wholesale']}\n庫存({number})"
+                result_s = f"現金價 {d['case_price']}\n批發價 {d['wholesale']}\n庫存({number})"
 
-            res.append(f"{idx}) {name}\n{result_s}")
+            res.append(f"{idx}) {name} {item_year}\n{result_s}")
         results = "\n".join(res)
         if role == 1:
-            results += "\n下單連結:\nhttps://liff.line.me/1645278921-kWRPP32q/?accountId=9527orz"
-        return f"所查詢的資料{text}如下：\n{results}"
+            results += f"\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
+        return f"您所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
