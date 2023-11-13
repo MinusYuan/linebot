@@ -86,7 +86,8 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
             return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
 
         res = []
-        for idx, query in enumerate(query_lst, 1):
+        idx = 1
+        for query in query_lst:
             d = query.to_dict()
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
@@ -94,6 +95,8 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
                 number = "8+"
 
             if role == 1:
+                if not d['wholesale']:
+                    continue
                 result_s = f"批發價 {d['wholesale']}/條\n"
             elif role == 2:
                 result_s = f"現金價 {d['case_price']}\n"
@@ -106,9 +109,10 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
             result_s += f"現貨庫存({number})"
 
             res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
+            idx += 1
         results = "\n\n".join(res)
         if role == 1:
-            results += f"\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
+            results += f"\n\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
         return f"您所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
