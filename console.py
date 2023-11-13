@@ -78,9 +78,7 @@ RM <手機號碼>
         prod_ref = self.db.collection("products")
         spec_text = text.replace('/', '')
         query_lst = prod_ref.where(
-            "spec", ">=", spec_text
-        ).where(
-            "spec", "<=", spec_text + '\uf8ff'
+            "spec", "==", spec_text
         ).get()
         if not len(query_lst):
             return f"目前查無此規格{text}，請洽管理人員。"
@@ -93,7 +91,7 @@ RM <手機號碼>
                 number = "8+"
 
             if role == 1:
-                result_s = f"{d['wholesale']}/條\n庫存({number})"
+                result_s = f"{d['wholesale']}/條\n庫存({number})\n下單連結:\nhttps://liff.line.me/1645278921-kWRPP32q/?accountId=9527orz"
             elif role == 2:
                 result_s = f"現金價 {d['price']}\n庫存({number})"
             else:
@@ -101,7 +99,7 @@ RM <手機號碼>
 
             res.append(f"{idx}) {name}\n{result_s}")
         results = "\n".join(res)
-        return f"所查詢的資料{text}如下：\n{results}\n下單連結:\nhttps://liff.line.me/1645278921-kWRPP32q/?accountId=9527orz"
+        return f"所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
@@ -128,6 +126,11 @@ RM <手機號碼>
         role = d.get("role")
         print(f"UID: {uid}, Role: {role}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
+
+        text_split = text.split(' ')
+        if role >= 3 and len(text_split) == 2 and utils.check_spec_command(text_split[0]) and text_split[-1].isdigit():
+            role = min(int(text_split[-1]), 2)
+            text = text_split[0]
 
         # Admin
         if role >= 3 and utils.check_command_action(text):
