@@ -52,8 +52,9 @@ class Console:
     def user_guide(self):
         return f"""
 角色代碼 --> (0:消費者,1:廠商,2:員工,3:管理層)
-CH <角色代碼> <手機號碼>
-RM <手機號碼>
+CH <角色代碼> <手機號碼> -> (改變權限)
+RM <手機號碼> -> (移除現有手機號碼綁定)
+<商品規格> <角色代碼> -> (使用特定角色查詢商品規格)
 """
     
     def delete_profile(self, uid):
