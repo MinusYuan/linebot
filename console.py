@@ -96,7 +96,12 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
             if role == 1:
                 result_s = f"批發價 {d['wholesale']}/條\n現貨庫存({number})"
             elif role == 2:
-                result_s = f"現金價 {d['case_price']}\n庫存({number})"
+                result_s = f"現金價 {d['case_price']}\n"
+                if d['district_project']:
+                    result_s += f"南太平日 {d['district_project']}\n"
+                if d['fb_case']:
+                    result_s += f"FB合購價 {d['fb_case']}\n"
+                result_s += f"庫存({number})"
             else:
                 result_s = f"現金價 {d['case_price']}\n批發價 {d['wholesale']}\n庫存({number})"
 
