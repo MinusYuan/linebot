@@ -111,10 +111,16 @@ def keep_awake():
         return
     resp = requests.get(f"{url}/healthcheck")
 
+def weekly_notify():
+    print(f"Weekly notify")
+
+
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
 trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
+trigger1 = CronTrigger(year="*", month="*", day_of_week="6", hour="12", minute="10", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
+scheduler.add_job(weekly_notify, trigger=trigger)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
