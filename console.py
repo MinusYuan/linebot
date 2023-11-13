@@ -105,7 +105,7 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
                 result_s = f"現金價 {d['case_price']}\n批發價 {d['wholesale']}\n"
             result_s += f"現貨庫存({number})"
 
-            res.append(f"{idx}) {name} {item_year}\n{result_s}")
+            res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
         results = "\n".join(res)
         if role == 1:
             results += f"\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
