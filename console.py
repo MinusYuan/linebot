@@ -105,10 +105,10 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
                 result_s = f"現金價 {d['cash_price']}\n刷卡價 {d['credit_price']}\n"
                 if d['district_project']:
                     result_s += f"南太平日 {d['district_project']}\n"
-                if d['fb_case']:
-                    result_s += f"FB合購價 {d['fb_case']}\n"
+                if d['fb_project']:
+                    result_s += f"FB合購價 {d['fb_project']}\n"
             else:
-                result_s = f"現金價 {d['case_price']}\n批發價 {d['wholesale']}\n"
+                result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
             result_s += f"現貨庫存({number})"
             if role == 3:
                 result_s += f"\n成本 {d['cost']}"
