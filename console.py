@@ -157,7 +157,7 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
             role = min(int(text_split[-1]), 2)
             text = text_split[0]
 
-        print(f"Check - 2: {role >= 3}, {utils.check_command_action(text)}, {text in ('?', '說明', '指令')}")
+        print(f"Check - 2: {role >= 3}, Text: {text}, {utils.check_command_action(text)}, {text in ('?', '說明', '指令')}")
         # Admin
         if role >= 3 and utils.check_command_action(text):
             if text in ("?", "說明", "指令"):
