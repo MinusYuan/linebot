@@ -139,11 +139,16 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
         user_doc = self.db.collection("users").document(uid)
         user_doc.set(d)
 
+    def update_keyword_cnt(self, text):
+        text = text.replace('/', '')
+        doc = self.db.collection("keywords").document(text)
+
+
     def console(self, uid, text):
         self.db = firestore.client()
         d = self.get_current_role(uid)
         role = d.get("role")
-        print(f"UID: {uid}, Role: {role}")
+        print(f"UID: {uid}, Role: {role}, Text: {text}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
 
         text_split = text.split(' ')
@@ -168,6 +173,7 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
 
         d["search_cnt"] = d.get("search_cnt", 0) + 1
         self.set_search_cnt(uid, d)
+        # self.update_keyword_cnt(text)
         return self.lookup(role, text)
 
 class utils:
