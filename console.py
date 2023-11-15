@@ -51,7 +51,10 @@ class Console:
         return "設定成功。\n若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。"
         
     def user_guide(self):
+        product_1 = self.db.collection("products").document("1").get().to_dict()
         return f"""
+目前商品最新更新時間為: {product_1.get("update_time")}
+
 角色代碼 --> (0:消費者,1:廠商,2:員工,3:管理層)
 CH <角色代碼> <手機號碼> -> (改變權限)
 RM <手機號碼> -> (移除現有手機號碼綁定)
