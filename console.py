@@ -152,12 +152,10 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
 
         text_split = text.split(' ')
-        print(f"Check - 1: {role >= 3}, {len(text_split) == 2}, {utils.check_spec_command(text_split[0])}, {text_split[-1].isdigit()}")
         if role >= 3 and len(text_split) == 2 and utils.check_spec_command(text_split[0]) and text_split[-1].isdigit():
             role = min(int(text_split[-1]), 2)
             text = text_split[0]
 
-        print(f"Check - 2: {role >= 3}, Text: {text}, {utils.check_command_action(text)}, {text in ('?', '說明', '指令')}")
         # Admin
         if role >= 3 and utils.check_command_action(text):
             if text in ("?", "說明", "指令"):
