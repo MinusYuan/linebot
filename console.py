@@ -99,7 +99,7 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
                     continue
                 result_s = f"批發價 {d['wholesale']}/條\n"
             elif role == 2:
-                result_s = f"現金價 {d['case_price']}\n"
+                result_s = f"現金價 {d['cash_price']}\n刷卡價 {d['credit_price']}\n"
                 if d['district_project']:
                     result_s += f"南太平日 {d['district_project']}\n"
                 if d['fb_case']:
@@ -107,12 +107,14 @@ RM <手機號碼> -> (移除現有手機號碼綁定)
             else:
                 result_s = f"現金價 {d['case_price']}\n批發價 {d['wholesale']}\n"
             result_s += f"現貨庫存({number})"
+            if role == 3:
+                result_s += f"\n成本 {d['cost']}"
 
             res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
             idx += 1
         results = "\n\n".join(res)
         if role == 1:
-            results += f"\n\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
+            results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
         return f"您所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
