@@ -48,7 +48,7 @@ class Console:
                 "search_cnt": 0
             }
         )
-        return "設定成功。\n若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。\n請點選下方連結_返回雲端通知管理員\n{self.return_url}"
+        return f"設定成功。\n若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。\n請點選下方連結_返回雲端通知管理員:\n{self.return_url}"
         
     def user_guide(self):
         product_1 = self.db.collection("products").document("1").get().to_dict()
