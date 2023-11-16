@@ -99,6 +99,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             item_year = d['item_year']
             if role == 1 and number > 8:
                 number = "8+"
+            elif role == 2 and number > 20:
+                number = "20+"
 
             if role == 1:
                 if not d['wholesale']:
