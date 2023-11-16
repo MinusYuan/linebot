@@ -12,6 +12,7 @@ class Console:
         cred = credentials.Certificate(cert)
         firebase_admin.initialize_app(cred)
         self.return_url = os.getenv('warehouse_url')
+        self.employee_url = os.getenv('employee_url')
 
     def close_client(self):
         self.db.close()
@@ -97,8 +98,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             d = query.to_dict()
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
-            if role == 1 and number > 8:
-                number = "8+"
+            if role == 1 and number > 12:
+                number = "12+"
             elif role == 2 and number > 20:
                 number = "20+"
 
@@ -124,6 +125,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         cur_dt = (datetime.utcnow() + timedelta(hours=8)).strftime("%m/%d %H:%M")
         if role == 1:
             results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
+        elif role == 2:
+            results += f"\n\n以上庫存僅供參考，已預約當下為主\n換胎預約下方連接_台中輪胎館:\n{self.return_url}"
         return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
