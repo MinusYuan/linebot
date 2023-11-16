@@ -121,10 +121,10 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
             idx += 1
         results = "\n\n".join(res)
-        cur_dt = (datetime.utcnow() + timedelta(hours=8)).strftime("%m/%d")
+        cur_dt = (datetime.utcnow() + timedelta(hours=8)).strftime("%m/%d %H:%M")
         if role == 1:
             results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
-        return f"查詢日期 {cur_dt}\n您所查詢的資料{text}如下：\n{results}"
+        return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n{results}"
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
