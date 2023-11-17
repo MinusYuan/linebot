@@ -64,6 +64,14 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
 <商品規格> <角色代碼> \n    -> (使用特定角色查詢商品規格)
 """
+
+    def role_0_guide(self):
+        return f"""
+管理人員尚未給予權限
+請耐心等候或洽管理人員
+請點選下方連結_返回雲端通知管理員:
+{self.return_url}
+"""
     
     def delete_profile(self, uid):
         self.db = firestore.client()
@@ -85,7 +93,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
     def lookup(self, role, text):
         prod_ref = self.db.collection("products")
-        spec_text = text.replace('/', '')
+        spec_text = text.replace('/', '').replace('R', '').replace('-', '')
         query_lst = prod_ref.where(
             "spec", "==", spec_text
         ).get()
@@ -145,7 +153,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
     def update_cnt(self, text, phone):
-        re_text = text.replace('/', '')
+        re_text = text.replace('/', '').replace('R', '').replace('-', '')
         k_doc = self.db.collection("search_cnt").document('keyword').update({re_text: firestore.Increment(1)})
         u_doc = self.db.collection("search_cnt").document('users').update({phone: firestore.Increment(1)})
 
@@ -172,6 +180,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 return self.rm_phone_role(text)
         elif role == 0 and utils.is_phone_no(text): # 消費者目前無法查詢
             return self.set_default_role(uid, text)
+        elif role == 0 and utils.check_spec_command(text):
+            return self.role_0_guide()
         elif not utils.check_spec_command(text) or \
                 len(chinese_character) or \
                 (role == 0 and not utils.is_phone_no(text)):
@@ -183,7 +193,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        return (text.isdigit() and 4 < len(text) < 9) or re.findall(r'[0-9]{3}/[0-9]{2}', text)
+        t = text.replace('R', '').replace('-', '')
+        return (t.isdigit() and 4 < len(t) < 9) or re.findall(r'[0-9]{3}/[0-9]{2}', t)
 
     @classmethod
     def check_command_action(cls, text):
