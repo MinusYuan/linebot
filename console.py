@@ -147,7 +147,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
     def update_cnt(self, text, phone):
         re_text = text.replace('/', '')
         k_doc = self.db.collection("search_cnt").document('keyword').update({re_text: firestore.Increment(1)})
-        u_doc = self.db.collection("search_cnt").document('user').update({phone: firestore.Increment(1)})
+        u_doc = self.db.collection("search_cnt").document('users').update({phone: firestore.Increment(1)})
 
     def console(self, uid, text):
         self.db = firestore.client()
