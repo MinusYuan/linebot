@@ -144,19 +144,15 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理員"}
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
-    def set_search_cnt(self, uid, d):
-        user_doc = self.db.collection("users").document(uid)
-        user_doc.set(d)
-
-    def update_keyword_cnt(self, text):
-        text = text.replace('/', '')
-        doc = self.db.collection("keywords").document(text)
-
+    def update_cnt(self, text, phone):
+        re_text = text.replace('/', '')
+        k_doc = self.db.collection("search_cnt").document('keyword').update({re_text: firestore.Increment(1)})
+        u_doc = self.db.collection("search_cnt").document('user').update({phone: firestore.Increment(1)})
 
     def console(self, uid, text):
         self.db = firestore.client()
         d = self.get_current_role(uid)
-        role = d.get("role")
+        role, phone = d.get("role"), d.get("phone_number")
         print(f"UID: {uid}, Role: {role}, Text: {text}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
 
@@ -181,9 +177,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 (role == 0 and not utils.is_phone_no(text)):
             return ''
 
-        d["search_cnt"] = d.get("search_cnt", 0) + 1
-        self.set_search_cnt(uid, d)
-        # self.update_keyword_cnt(text)
+        self.update_cnt(text, phone)
         return self.lookup(role, text)
 
 class utils:
