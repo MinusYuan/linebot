@@ -135,7 +135,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
         elif role == 2:
             results += f"\n\n以上庫存僅供參考，請以預約當下為主\n換胎預約下方連接_台中輪胎館:\n{self.employee_url}"
-        return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n{results}"
+        return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n\n{results}"
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
