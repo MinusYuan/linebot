@@ -134,7 +134,7 @@ def weekly_notify():
     cur_time = tw_current_time().strftime("%Y-%m-%d")
     mail = EMail(os.getenv('EMAIL_KEY'))
     mail.send(
-        ['rod92540@gmail.com'],
+        os.getenv('mail_to').split(','),
         [],
         f"每周報表 - TTShop {cur_time}",
         "您好，\n\n此為系統每周自動產生的報告，若有任何疑慮請聯絡我們。\n謝謝。",
