@@ -140,9 +140,6 @@ def weekly_notify():
         "您好，\n\n此為系統每周自動產生的報告，若有任何疑慮請聯絡我們。\n謝謝。",
         attachments
     )
-
-    for a in attachments:
-        os.remove(a)
     print(f"Weekly Notify - Done")
 
 # Use scheduler to health check
