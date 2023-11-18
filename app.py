@@ -86,7 +86,7 @@ def message_text(event):
     reply = con.console(user_id, mess)
     if not reply:
         return
-    print(f"UID: {user_id}, Reply: {reply}")
+    print(f"UID: {user_id}, Reply: {reply[:15]}")
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         profile = line_bot_api.get_profile(user_id)
