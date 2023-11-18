@@ -120,7 +120,6 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-@app.route("/notify", methods=['GET'])
 def weekly_notify():
     print(f"Weekly Notify - Start")
     keyword, users = con.get_search_cnt_report_then_reset()
