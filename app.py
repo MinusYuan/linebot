@@ -126,7 +126,7 @@ def weekly_notify():
     keyword, users = con.get_search_cnt_report_then_reset()
     attachments = []
     for d, fn in ((keyword, 'keyword'), (users, 'users')):
-        df = pd.DataFrame(d.items(), columns=[fn, 'Count'])
+        df = pd.DataFrame(d.items(), columns=[fn, 'Count'], dtype=str)
         sorted_df = df.sort_values(by='Count', ascending=False)
         sorted_df.to_csv(f"{fn}.csv", index=False, header=True, encoding='utf-8-sig')
         attachments.append(f"{fn}.csv")
