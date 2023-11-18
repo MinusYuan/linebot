@@ -1,10 +1,11 @@
 import os
 import re
 import firebase_admin
-from datetime import datetime, timedelta
 from firebase_admin import credentials
 from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
+
+from utils import tw_current_time
 
 class Console:
     def __init__(self):
@@ -57,8 +58,8 @@ class Console:
         doc.set(
             {
                 "uid": uid, "role": 0, "phone_number": text,
-                "create_dt": datetime.now().strftime("%Y-%m-%d"),
-                "create_ts": datetime.now().strftime("%H:%M:%S"),
+                "create_dt": tw_current_time().strftime("%Y-%m-%d"),
+                "create_ts": tw_current_time().strftime("%H:%M:%S"),
                 "search_cnt": 0
             }
         )
@@ -143,7 +144,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
             idx += 1
         results = "\n\n".join(res)
-        cur_dt = (datetime.utcnow() + timedelta(hours=8)).strftime("%m/%d %H:%M")
+        cur_dt = tw_current_time().strftime("%m/%d %H:%M")
         if role == 1:
             results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
         elif role == 2:
@@ -169,6 +170,15 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         re_text = text.replace('/', '').replace('R', '').replace('-', '')
         k_doc = self.db.collection("search_cnt").document('keyword').update({re_text: firestore.Increment(1)})
         u_doc = self.db.collection("search_cnt").document('users').update({phone: firestore.Increment(1)})
+
+    def get_search_cnt_report_then_reset(self):
+        db = firestore.client()
+        k_doc = db.collection("search_cnt").document('keyword')
+        u_doc = db.collection("search_cnt").document('users')
+        # k_doc.set({"default": 0})
+        # u_doc.set({"default": 0})
+        db.close()
+        return k_doc.get().to_dict(), u_doc.get().to_dict()
 
     def console(self, uid, text):
         self.db = firestore.client()

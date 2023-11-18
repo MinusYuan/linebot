@@ -42,7 +42,11 @@ from linebot.models import UnfollowEvent
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
+
+# Local package
 from console import Console
+from notify import EMail
+from utils import tw_current_time
 
 app = Flask(__name__)
 
@@ -116,12 +120,39 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
+@app.route("/notify", methods=['GET'])
+def weekly_notify():
+    print(f"Weekly Notify - Start")
+    keyword, users = con.get_search_cnt_report_then_reset()
+    attachments = []
+    for d, fn in ((keyword, 'keyword'), (users, 'users')):
+        df = pd.DataFrame(d.items(), columns=[fn, 'Count'])
+        sorted_df = df.sort_values(by='Count', ascending=False)
+        sorted_df.to_csv(f"{fn}.csv", index=False, header=True, encoding='utf-8-sig')
+        attachments.append(f"{fn}.csv")
+
+    cur_time = tw_current_time().strftime("%Y-%m-%d")
+    mail = EMail(os.getenv('EMAIL_KEY'))
+    mail.send(
+        ['rod92540@gmail.com'],
+        [],
+        f"每周報表 - TTShop {cur_time}",
+        "您好，\n\n此為系統每周自動產生的報告，若有任何疑慮請聯絡我們。\n謝謝。",
+        attachments
+    )
+
+    for a in attachments:
+        os.remove(a)
+    print(f"Weekly Notify - Done")
+
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
 trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
 trigger1 = CronTrigger(year="*", month="*", day="*", hour="16", minute="0", second="0")
+trigger2 = CronTrigger(year="*", month="*", day="*", day_of_week="6", hour="16", minute="0", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.add_job(daily_update_employee_list, trigger=trigger1)
+scheduler.add_job(weekly_notify, trigger=trigger2)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
