@@ -86,7 +86,7 @@ def message_text(event):
     reply = con.console(user_id, mess)
     if not reply:
         return
-
+    print(f"UID: {user_id}, Reply: {reply}")
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         profile = line_bot_api.get_profile(user_id)
@@ -111,16 +111,17 @@ def keep_awake():
         return
     resp = requests.get(f"{url}/healthcheck")
 
-def weekly_notify():
-    print(f"Weekly notify")
-
+def daily_update_employee_list():
+    print(f"Update employee list - Start")
+    con.get_employee_dict()
+    print(f"Update employee list - Done")
 
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
 trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
-trigger1 = CronTrigger(year="*", month="*", day_of_week="6", hour="12", minute="10", second="0")
+trigger1 = CronTrigger(year="*", month="*", day="*", hour="16", minute="0", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
-scheduler.add_job(weekly_notify, trigger=trigger)
+scheduler.add_job(daily_update_employee_list, trigger=trigger1)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 

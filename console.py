@@ -14,6 +14,17 @@ class Console:
         self.return_url = os.getenv('warehouse_url')
         self.employee_url = os.getenv('employee_url')
 
+        self.get_employee_dict()
+
+    def get_employee_dict(self):
+        db = firestore.client()
+
+        users_ref = db.collection("users")
+        query = users_ref.where(filter=FieldFilter("role", "in", [2, 3])).get()
+        self.employee_dict = {q.id: q.to_dict() for q in query}
+
+        db.close()
+
     def close_client(self):
         self.db.close()
 
@@ -27,6 +38,8 @@ class Console:
         return d
 
     def get_current_role(self, uid):
+        if uid in self.employee_dict:
+            return self.employee_dict[uid]
         d = self.db.collection("users").document(uid).get().to_dict()
         return d or {"role": 0}
 
@@ -169,7 +182,6 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             role = min(int(text_split[-1]), 2)
             text = text_split[0]
 
-        print(f"Check - 1: {role >= 3}, Text: {text}, {utils.check_command_action(text)}, {text in ('?', '？', '說明', '指令')}")
         # Admin
         if role >= 3 and utils.check_command_action(text):
             if text in ("?", "？", "說明", "指令"):
