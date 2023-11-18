@@ -120,6 +120,7 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
+@app.route("/notify", methods=['GET'])
 def weekly_notify():
     print(f"Weekly Notify - Start")
     keyword, users = con.get_search_cnt_report_then_reset()
@@ -136,7 +137,7 @@ def weekly_notify():
         os.getenv('mail_to').split(','),
         [],
         f"每周報表 - TTShop {cur_time}",
-        "您好，\n\n此為系統每周自動產生的報告，若有任何疑慮請聯絡我們。\n謝謝。",
+        "您好，<br><br>此為系統每周自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。",
         attachments
     )
     print(f"Weekly Notify - Done")
