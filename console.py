@@ -197,6 +197,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         role, phone = d.get("role"), d.get("phone_number")
         print(f"UID: {uid}, Role: {role}, Text: {text}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
+        do_write = role == 1
 
         text_split = text.split(' ')
         if role >= 3 and len(text_split) == 2 and utils.check_spec_command(text_split[0]) and text_split[-1].isdigit():
@@ -220,7 +221,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 (role == 0 and not utils.is_phone_no(text)):
             return ''
 
-        self.update_cnt(text, phone)
+        if do_write:
+            self.update_cnt(text, phone)
         return self.lookup(role, text)
 
 class utils:
