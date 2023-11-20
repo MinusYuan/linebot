@@ -5,7 +5,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
-from utils import tw_current_time
+from utils import tw_current_time, get_tomorrow_date
 
 class Console:
     def __init__(self):
@@ -23,8 +23,18 @@ class Console:
         users_ref = db.collection("users")
         query = users_ref.where(filter=FieldFilter("role", "in", [2, 3])).get()
         self.employee_dict = {q.id: q.to_dict() for q in query}
+        self.create_default_table(db)
 
         db.close()
+
+    def create_default_table(self, db):
+        tomo_dt = get_tomorrow_date()
+
+        k_doc = db.collection("search_cnt").document(f'keyword_{tomo_dt}')
+        u_doc = db.collection("search_cnt").document(f'users_{tomo_dt}')
+        # Let document exist
+        k_doc.set({"default": 0})
+        u_doc.set({"default": 0})
 
     def close_client(self):
         self.db.close()
@@ -167,9 +177,10 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
     def update_cnt(self, text, phone):
+        cur_dt = tw_current_time().strftime("%Y%m%d")
         re_text = text.replace('/', '').replace('R', '').replace('-', '')
-        k_doc = self.db.collection("search_cnt").document('keyword').update({re_text: firestore.Increment(1)})
-        u_doc = self.db.collection("search_cnt").document('users').update({phone: firestore.Increment(1)})
+        k_doc = self.db.collection("search_cnt").document(f'keyword_{cur_dt}').update({re_text: firestore.Increment(1)})
+        u_doc = self.db.collection("search_cnt").document(f'users_{cur_dt}').update({phone: firestore.Increment(1)})
 
     def get_search_cnt_report_then_reset(self):
         db = firestore.client()
