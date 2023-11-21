@@ -23,7 +23,10 @@ class Console:
         users_ref = db.collection("users")
         query = users_ref.where(filter=FieldFilter("role", "in", [2, 3])).get()
         self.employee_dict = {q.id: q.to_dict() for q in query}
-        self.create_default_table(db)
+        
+        cur_dt = tw_current_time()
+        if cur_dt == 23:
+            self.create_default_table(db)
 
         db.close()
 
