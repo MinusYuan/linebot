@@ -25,7 +25,7 @@ class Console:
         self.employee_dict = {q.id: q.to_dict() for q in query}
         
         cur_dt = tw_current_time()
-        if cur_dt == 23:
+        if cur_dt.hour == 23:
             self.create_default_table(db)
 
         db.close()
