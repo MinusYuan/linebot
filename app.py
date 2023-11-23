@@ -120,35 +120,44 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-def weekly_notify():
-    print(f"Weekly Notify - Start")
-    keyword, users = con.get_search_cnt_report_then_reset()
-    attachments = []
-    for d, fn in ((keyword, 'keyword'), (users, 'users')):
-        df = pd.DataFrame(d.items(), columns=[fn, 'Count'], dtype=str)
-        sorted_df = df.sort_values(by='Count', ascending=False)
-        sorted_df.to_csv(f"{fn}.csv", index=False, header=True, encoding='utf-8-sig')
-        attachments.append(f"{fn}.csv")
+def daily_notify():
+    print(f"Daily Notify - Start")
+    ytd_dt = get_yesterday_date().strftime("%Y%m%d")
 
-    cur_time = tw_current_time().strftime("%Y-%m-%d")
+    keyword, users = con.get_search_cnt_report_then_reset(ytd_dt)
+    data = {}
+    for key, d in ((f"keyword_{ytd_dt}", keyword), (f"users_{ytd_dt}", users)):
+        pri_key = key.split('_')[0].capitalize()
+        d.pop('default')
+        sorted_d = sorted(d.items(), key=lambda x: x[1], reverse=True)
+        k, v = zip(*sorted_d)
+        data[pri_key] = k
+        data[f'{pri_key} Count'] = v
+
+    att_name = f"auto_gen_{ytd_dt}.csv"
+    df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
+    df['Users'] = '="' + df['Users'] + '"'
+    df.to_csv(att_name, index=False, header=True, encoding='utf-8-sig')
+
     mail = EMail(os.getenv('EMAIL_KEY'))
+    mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
     mail.send(
-        os.getenv('mail_to').split(','),
-        [],
-        f"每周報表 - TTShop {cur_time}",
-        "您好，<br><br>此為系統每周自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。",
-        attachments
+        mail_to_list,
+        f"每日報表 - TTShop {ytd_dt}",
+        "您好，<br><br>此為系統每日自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。",
+        attachments=[att_name],
+        bcc_emails=mail_bcc_list
     )
-    print(f"Weekly Notify - Done")
+    print(f"Daily Notify - Done")
 
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
 trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
 trigger1 = CronTrigger(year="*", month="*", day="*", hour="15", minute="10", second="0")
-trigger2 = CronTrigger(year="*", month="*", day="*", day_of_week="6", hour="16", minute="0", second="0")
+trigger2 = CronTrigger(year="*", month="*", day="*", hour="2", minute="0", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.add_job(daily_update_employee_list, trigger=trigger1)
-scheduler.add_job(weekly_notify, trigger=trigger2)
+scheduler.add_job(daily_notify, trigger=trigger2)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 

@@ -11,7 +11,7 @@ class EMail:
         self.sg = SendGridAPIClient(api_key)
         self.subject_prefix = "[NovaWide Tech]"
 
-    def send(self, to_emails, cc_emails, subject, message, attachments=[], bcc_emails=[]):
+    def send(self, to_emails, subject, message, attachments=[], cc_emails=[], bcc_emails=[]):
         def encoded_file(fn):
             print(f"encoded_file: {fn}")
             if isinstance(fn, pd.DataFrame):

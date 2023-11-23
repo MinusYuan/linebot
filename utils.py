@@ -5,3 +5,6 @@ def tw_current_time():
 
 def get_tomorrow_date():
     return (tw_current_time() + timedelta(hours=1)).strftime("%Y%m%d")
+
+def get_yesterday_date():
+    return (tw_current_time() - timedelta(days=1)).strftime("%Y%m%d")

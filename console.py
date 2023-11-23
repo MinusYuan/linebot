@@ -185,14 +185,17 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         k_doc = self.db.collection("search_cnt").document(f'keyword_{cur_dt}').update({re_text: firestore.Increment(1)})
         u_doc = self.db.collection("search_cnt").document(f'users_{cur_dt}').update({phone: firestore.Increment(1)})
 
-    def get_search_cnt_report_then_reset(self):
+    def get_search_cnt_report_then_reset(self, ytd):
         db = firestore.client()
-        k_doc = db.collection("search_cnt").document('keyword')
-        u_doc = db.collection("search_cnt").document('users')
+        k_doc = db.collection("search_cnt").document(f'keyword_{ytd}')
+        u_doc = db.collection("search_cnt").document(f'users_{ytd}')
+        k_dict, u_dict = k_doc.get().to_dict(), u_doc.get().to_dict()
+        # k_doc.delete()
+        # u_doc.delete()
         # k_doc.set({"default": 0})
         # u_doc.set({"default": 0})
         db.close()
-        return k_doc.get().to_dict(), u_doc.get().to_dict()
+        return k_dict, u_dict
 
     def console(self, uid, text):
         self.db = firestore.client()
