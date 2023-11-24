@@ -126,14 +126,16 @@ def daily_notify():
     ytd_dt = get_yesterday_date()
 
     keyword, users = con.get_search_cnt_report_then_reset(ytd_dt)
-    data = {}
-    for key, d in ((f"keyword_{ytd_dt}", keyword), (f"users_{ytd_dt}", users)):
+    data, total = {}, 0
+    for key, d in ((f"關鍵字", keyword), (f"廠商", users)):
         pri_key = key.split('_')[0].capitalize()
         d.pop('default')
         sorted_d = sorted(d.items(), key=lambda x: x[1], reverse=True)
         k, v = zip(*sorted_d)
-        data[pri_key] = k
-        data[f'{pri_key} Count'] = v
+        data[key] = k
+        data[f'{key}查詢次數'] = v
+        total = sum(v)
+    data["總查詢次數"] = total
 
     att_name = f"auto_gen_{ytd_dt}.csv"
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
