@@ -169,7 +169,7 @@ def daily_notify():
     att_name = f"auto_gen_{ytd_dt}.xlsx"
 
     keywords, users = Counter(), Counter()
-    with pd.ExcelWriter('output.xlsx', mode='a') as writer:
+    with pd.ExcelWriter(att_name) as writer:
         for freq in ('D', 'W', 'M'):
             if freq == 'D' or (freq == 'W' and ytd.weekday() == 3) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
                 sheet_name = get_sheet_name(freq)
