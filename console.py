@@ -190,13 +190,13 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         k_lst, u_lst = [], []
         for dt in dt_lst:
             dt_str = dt.strftime("%Y%m%d")
-            k_doc = db.collection("search_cnt").document(f'keyword_{dt_str}')
-            u_doc = db.collection("search_cnt").document(f'users_{dt_str}')
+            k_doc = db.collection("search_cnt").document(f'keyword_{dt_str}').get().to_dict()
+            u_doc = db.collection("search_cnt").document(f'users_{dt_str}').get().to_dict()
             if not k_doc:
                 continue
 
-            k_lst.append(k_doc.get().to_dict())
-            u_lst.append(u_doc.get().to_dict())
+            k_lst.append(k_doc)
+            u_lst.append(u_doc)
         db.close()
         return k_lst, u_lst
 
