@@ -120,7 +120,6 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-@app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     print(f"Daily Notify - Start")
     ytd_dt = get_yesterday_date()
