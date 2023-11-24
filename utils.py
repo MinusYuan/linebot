@@ -23,4 +23,19 @@ def get_date_list(freq, end_dt):
         date_lst.append(start_dt)
         start_dt += timedelta(days=1)
     return date_lst
-    
+
+def auto_adjust_width(ws):
+    # Automatically adjust width of an excel files columns
+    # Ref: https://stackoverflow.com/questions/39529662/python-automatically-adjust-width-of-an-excel-files-columns
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter  # Get the column name
+        # Since Openpyxl 2.6, the column name is  ".column_letter" as .column became the column number (1-based)
+        for cell in col:
+            try:  # Necessary to avoid error on empty cells
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.5
+        ws.column_dimensions[column].width = adjusted_width

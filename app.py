@@ -42,12 +42,13 @@ from linebot.models import UnfollowEvent
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
+from collections import Counter
+from openpyxl import load_workbook
 
 # Local package
 from console import Console
 from notify import EMail
 from utils import *
-from collections import Counter
 
 app = Flask(__name__)
 
@@ -143,7 +144,7 @@ def daily_notify():
         data[date_keyword] = date
         
         df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
-        df['廠商手機號碼'] = '="' + df['廠商手機號碼'] + '"'
+        # df['廠商手機號碼'] = '="' + df['廠商手機號碼'] + '"'
         return df
 
     def parse_lst(k_lst, k_counter, u_lst, u_counter):
@@ -169,6 +170,7 @@ def daily_notify():
     att_name = f"auto_gen_{ytd_dt}.xlsx"
 
     keywords, users = Counter(), Counter()
+    sheet_list = []
     with pd.ExcelWriter(att_name) as writer:
         for freq in ('D', 'W', 'M'):
             if freq == 'D' or (freq == 'W' and ytd.weekday() == 3) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
@@ -180,9 +182,16 @@ def daily_notify():
                 date = ytd_dt if freq == 'D' else f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}'
                 df = return_pd_dataframe(keywords, users, date)
                 df.to_excel(writer, sheet_name=sheet_name, index=False, header=True, encoding='utf-8-sig')
+                sheet_list.append(sheet_name)
                 # if freq == 'M':
                 #     date_lst = get_date_list(freq, tw_current_time())
                 #     con.delete_documents(date_lst)
+
+    wb = load_workbook(att_name)
+    for sheet in sheet_list:
+        ws = wb.get_sheet_by_name(sheet)
+        auto_adjust_width(ws)
+    wb.save(att_name)
 
     mail = EMail(os.getenv('EMAIL_KEY'))
     mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
