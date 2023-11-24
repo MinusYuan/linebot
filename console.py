@@ -185,17 +185,23 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         k_doc = self.db.collection("search_cnt").document(f'keyword_{cur_dt}').update({re_text: firestore.Increment(1)})
         u_doc = self.db.collection("search_cnt").document(f'users_{cur_dt}').update({phone: firestore.Increment(1)})
 
-    def get_search_cnt_report(self, ytd_lst):
+    def get_search_cnt_report(self, dt_lst):
         db = firestore.client()
         k_lst, u_lst = [], []
-        for ytd in ytd_lst:
-            ytd_str = ytd.strftime("%Y%m%d")
-            k_doc = db.collection("search_cnt").document(f'keyword_{ytd_str}')
-            u_doc = db.collection("search_cnt").document(f'users_{ytd_str}')
+        for dt in dt_lst:
+            dt_str = dt.strftime("%Y%m%d")
+            k_doc = db.collection("search_cnt").document(f'keyword_{dt_str}')
+            u_doc = db.collection("search_cnt").document(f'users_{dt_str}')
             k_lst.append(k_doc.get().to_dict())
             u_lst.append(u_doc.get().to_dict())
         db.close()
         return k_lst, u_lst
+
+    def delete_documents(self, date_lst):
+        for dt in date_lst:
+            dt_str = dt.strftime("%Y%m%d")
+            db.collection("search_cnt").document(f'keyword_{dt_str}').delete()
+            db.collection("search_cnt").document(f'users_{dt_str}').delete()
 
     def console(self, uid, text):
         self.db = firestore.client()

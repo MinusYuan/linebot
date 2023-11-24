@@ -157,7 +157,7 @@ def daily_notify():
     def get_sheet_name(freq):
         if freq == 'D':
             return '日報表'
-        elif freq == 'W'
+        elif freq == 'W':
             return '周報表'
         else:
             return '月報表'
@@ -178,6 +178,9 @@ def daily_notify():
             date = ytd_dt if freq == 'D' else f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}'
             df = return_pd_dataframe(keywords, users, date)
             df.to_excel(att_name, sheet_name=sheet_name, index=False, header=True, encoding='utf-8-sig')
+            # if freq == 'M':
+            #     date_lst = get_date_list(freq, tw_current_time())
+            #     con.delete_documents(date_lst)
 
     mail = EMail(os.getenv('EMAIL_KEY'))
     mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
