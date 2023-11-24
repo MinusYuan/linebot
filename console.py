@@ -130,7 +130,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         d_lst = [q.to_dict() for q in query_lst]
         res = []
         idx = 1
-        for d in sorted(d_lst, lambda x: x['item_name']):
+        for d in sorted(d_lst, key=lambda x: x['item_name']):
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
             if role == 1 and number > 12:
