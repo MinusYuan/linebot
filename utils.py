@@ -4,20 +4,16 @@ from calendar import monthrange
 def tw_current_time():
     return datetime.utcnow() + timedelta(hours=8)
 
-def get_tomorrow_date():
-    return (tw_current_time() + timedelta(hours=1)).strftime("%Y%m%d")
-
 def get_diff_days_date(days):
     return tw_current_time() - timedelta(days=days)
-
-def get_yesterday_date():
-    return get_diff_days_date(1)
 
 def get_end_day(year, month)
     return monthrange(year, month)[1]
 
 def get_date_list(freq, end_dt):
-    if freq == 'W':
+    if freq == 'D':
+        start_dt = get_diff_days_date(1)
+    elif freq == 'W':
         start_dt = get_diff_days_date(7)
     elif freq == 'M':
         start_dt = end_dt.replace(day=1)

@@ -46,7 +46,7 @@ import atexit
 # Local package
 from console import Console
 from notify import EMail
-from utils import tw_current_time, get_yesterday_date, get_end_day
+from utils import tw_current_time, get_diff_days_date, get_end_day
 from collections import Counter
 
 app = Flask(__name__)
@@ -154,25 +154,30 @@ def daily_notify():
             u_counter += Counter(ele)
         return k_counter, u_counter
 
+    def get_sheet_name(freq):
+        if freq == 'D':
+            return '日報表'
+        elif freq == 'W'
+            return '周報表'
+        else:
+            return '月報表'
+
     print(f"Daily Notify - Start")
-    start_dt = ytd = get_yesterday_date()
-    ytd_dt = ytd.strftime("%Y%m%d")
+    start_dt = tw_current_time()
+    ytd_dt = get_diff_days_date(1).strftime("%Y%m%d")
     att_name = f"auto_gen_{ytd_dt}.xlsx"
 
-    keyword_lst, user_lst = con.get_search_cnt_report([ytd])
-    keywords, users = parse_lst(keyword_lst, Counter(), user_lst, Counter())
-    daily_df = return_pd_dataframe(keywords, users, ytd_dt)
-    daily_df.to_excel(att_name, sheet_name='日報表', index=False, header=True, encoding='utf-8-sig')
-
-    for freq in ('W', 'M'):
-        if (freq == 'W' and ytd.weekday() == 3) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
-            sheet_name = '周報表' if freq == 'W' else '月報表'
+    keywords, users = Counter(), Counter()
+    for freq in ('D', 'W', 'M'):
+        if freq == 'D' or (freq == 'W' and ytd.weekday() == 3) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
+            sheet_name = get_sheet_name(freq)
             date_lst = get_date_list(freq, start_dt)
             start_dt = date_lst[0]
             keyword_lst, user_lst = con.get_search_cnt_report(date_lst)
             keywords, users = parse_lst(keyword_lst, keywords, user_lst, users)
-            df = return_pd_dataframe(keywords, users, f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}')
-            df.to_excel(att_name, sheet_name='周報表', index=False, header=True, encoding='utf-8-sig')
+            date = ytd_dt if freq == 'D' else f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}'
+            df = return_pd_dataframe(keywords, users, date)
+            df.to_excel(att_name, sheet_name=sheet_name, index=False, header=True, encoding='utf-8-sig')
 
     mail = EMail(os.getenv('EMAIL_KEY'))
     mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')

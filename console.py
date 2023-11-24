@@ -5,7 +5,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
-from utils import tw_current_time, get_tomorrow_date
+from utils import tw_current_time, get_diff_days_date
 
 class Console:
     def __init__(self):
@@ -31,7 +31,7 @@ class Console:
         db.close()
 
     def create_default_table(self, db):
-        tomo_dt = get_tomorrow_date()
+        tomo_dt = get_diff_days_date(-1).strftime("%Y%m%d")
 
         k_doc = db.collection("search_cnt").document(f'keyword_{tomo_dt}')
         u_doc = db.collection("search_cnt").document(f'users_{tomo_dt}')
