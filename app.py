@@ -46,7 +46,7 @@ import atexit
 # Local package
 from console import Console
 from notify import EMail
-from utils import tw_current_time, get_diff_days_date, get_end_day
+from utils import *
 from collections import Counter
 
 app = Flask(__name__)
