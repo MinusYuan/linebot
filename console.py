@@ -192,6 +192,9 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             dt_str = dt.strftime("%Y%m%d")
             k_doc = db.collection("search_cnt").document(f'keyword_{dt_str}')
             u_doc = db.collection("search_cnt").document(f'users_{dt_str}')
+            if not k_doc:
+                continue
+
             k_lst.append(k_doc.get().to_dict())
             u_lst.append(u_doc.get().to_dict())
         db.close()
