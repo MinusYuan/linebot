@@ -123,7 +123,7 @@ def daily_update_employee_list():
 @app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     print(f"Daily Notify - Start")
-    ytd_dt = get_yesterday_date().strftime("%Y%m%d")
+    ytd_dt = get_yesterday_date()
 
     keyword, users = con.get_search_cnt_report_then_reset(ytd_dt)
     data = {}
