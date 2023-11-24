@@ -91,7 +91,8 @@ def message_text(event):
     reply = con.console(user_id, mess)
     if not reply:
         return
-    print(f"UID: {user_id}, Reply: {reply.split('\n')[0]}")
+    partial_reply = reply.split('\n')[0]
+    print(f"UID: {user_id}, Reply: {partial_reply}")
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         profile = line_bot_api.get_profile(user_id)
