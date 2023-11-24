@@ -7,7 +7,7 @@ def tw_current_time():
 def get_diff_days_date(days):
     return tw_current_time() - timedelta(days=days)
 
-def get_end_day(year, month)
+def get_end_day(year, month):
     return monthrange(year, month)[1]
 
 def get_date_list(freq, end_dt):
