@@ -164,8 +164,8 @@ def daily_notify():
             return '月報表'
 
     print(f"Daily Notify - Start")
-    start_dt = tw_current_time()
-    ytd_dt = get_diff_days_date(1).strftime("%Y%m%d")
+    start_dt, ytd = tw_current_time(), get_diff_days_date(1)
+    ytd_dt = ytd.strftime("%Y%m%d")
     att_name = f"auto_gen_{ytd_dt}.xlsx"
 
     keywords, users = Counter(), Counter()
