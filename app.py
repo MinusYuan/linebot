@@ -169,19 +169,20 @@ def daily_notify():
     att_name = f"auto_gen_{ytd_dt}.xlsx"
 
     keywords, users = Counter(), Counter()
-    for freq in ('D', 'W', 'M'):
-        if freq == 'D' or (freq == 'W' and ytd.weekday() == 3) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
-            sheet_name = get_sheet_name(freq)
-            date_lst = get_date_list(freq, start_dt)
-            start_dt = date_lst[0]
-            keyword_lst, user_lst = con.get_search_cnt_report(date_lst)
-            keywords, users = parse_lst(keyword_lst, keywords, user_lst, users)
-            date = ytd_dt if freq == 'D' else f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}'
-            df = return_pd_dataframe(keywords, users, date)
-            df.to_excel(att_name, sheet_name=sheet_name, index=False, header=True, encoding='utf-8-sig')
-            # if freq == 'M':
-            #     date_lst = get_date_list(freq, tw_current_time())
-            #     con.delete_documents(date_lst)
+    with pd.ExcelWriter('output.xlsx', mode='a') as writer:
+        for freq in ('D', 'W', 'M'):
+            if freq == 'D' or (freq == 'W' and ytd.weekday() == 3) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
+                sheet_name = get_sheet_name(freq)
+                date_lst = get_date_list(freq, start_dt)
+                start_dt = date_lst[0]
+                keyword_lst, user_lst = con.get_search_cnt_report(date_lst)
+                keywords, users = parse_lst(keyword_lst, keywords, user_lst, users)
+                date = ytd_dt if freq == 'D' else f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}'
+                df = return_pd_dataframe(keywords, users, date)
+                df.to_excel(writer, sheet_name=sheet_name, index=False, header=True, encoding='utf-8-sig')
+                # if freq == 'M':
+                #     date_lst = get_date_list(freq, tw_current_time())
+                #     con.delete_documents(date_lst)
 
     mail = EMail(os.getenv('EMAIL_KEY'))
     mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
