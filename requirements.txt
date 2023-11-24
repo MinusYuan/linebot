@@ -7,3 +7,4 @@ apscheduler
 firebase-admin
 google-cloud-firestore
 sendgrid
+openpyxl
