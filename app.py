@@ -123,7 +123,7 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-@app.route("/daily_notify", methods=['GET'])
+# @app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
@@ -173,7 +173,7 @@ def daily_notify():
     sheet_list = []
     with pd.ExcelWriter(att_name) as writer:
         for freq in ('D', 'W', 'M'):
-            if freq == 'D' or (freq == 'W' and ytd.weekday() == 3) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
+            if freq == 'D' or (freq == 'W' and ytd.weekday() == 5) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
                 sheet_name = get_sheet_name(freq)
                 date_lst = get_date_list(freq, start_dt)
                 start_dt = date_lst[0]
