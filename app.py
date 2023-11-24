@@ -125,7 +125,7 @@ def daily_update_employee_list():
 @app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     def sorted_split_dict(items):
-        sorted_d = sorted(items(), key=lambda x: x[1], reverse=True)
+        sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
         return zip(*sorted_d)
 
     def return_pd_dataframe(keywords, users, date):
