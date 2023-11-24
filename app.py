@@ -127,7 +127,7 @@ def daily_notify():
 
     keyword, users = con.get_search_cnt_report_then_reset(ytd_dt)
     data, total = {}, 0
-    for key, d in ((f"關鍵字", keyword), (f"廠商", users)):
+    for key, d in ((f"關鍵字", keyword), (f"廠商手機號碼", users)):
         pri_key = key.split('_')[0].capitalize()
         d.pop('default')
         sorted_d = sorted(d.items(), key=lambda x: x[1], reverse=True)
@@ -136,10 +136,11 @@ def daily_notify():
         data[f'{key}查詢次數'] = v
         total = sum(v)
     data["總查詢次數"] = total
+    data["報表日期"] = ytd_dt
 
     att_name = f"auto_gen_{ytd_dt}.csv"
     df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
-    df['Users'] = '="' + df['Users'] + '"'
+    df['廠商手機號碼'] = '="' + df['廠商手機號碼'] + '"'
     df.to_csv(att_name, index=False, header=True, encoding='utf-8-sig')
 
     mail = EMail(os.getenv('EMAIL_KEY'))
