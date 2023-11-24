@@ -127,10 +127,10 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         if not len(query_lst):
             return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
 
+        d_lst = [q.to_dict() for q in query_lst]
         res = []
         idx = 1
-        for query in query_lst:
-            d = query.to_dict()
+        for d in sorted(d_lst, lambda x: x['item_name']):
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
             if role == 1 and number > 12:
