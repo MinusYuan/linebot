@@ -120,7 +120,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
     def lookup(self, role, text):
         prod_ref = self.db.collection("products")
-        spec_text = text.replace('/', '').replace('R', '').replace('-', '')
+        spec_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '')
         query_lst = prod_ref.where(
             "spec", "==", spec_text
         ).get()
