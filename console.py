@@ -121,8 +121,6 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
     def lookup(self, role, text):
         prod_ref = self.db.collection("products")
         spec_text = text.replace('/', '').replace('R', '').replace('-', '')
-        if spec_text.endswith('.5'):
-            spec_text = spec_text.strip('.5')
         query_lst = prod_ref.where(
             "spec", "==", spec_text
         ).get()
@@ -245,9 +243,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        t = text.replace('R', '').replace('-', '')
-        if t.endswith('.5'):
-            t = t.strip('.5')
+        t = text.replace('R', '').replace('-', '').replace('.', '')
         return (t.isdigit() and 4 < len(t) < 9) or re.findall(r'[0-9]{3}/[0-9]{2}', t)
 
     @classmethod
