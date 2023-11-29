@@ -210,7 +210,7 @@ def daily_notify():
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
 trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
-trigger1 = CronTrigger(year="*", month="*", day="*", hour="15", minute="10", second="0")
+trigger1 = CronTrigger(year="*", month="*", day="*", hour="1,4,7,10", minute="0", second="0")
 trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.add_job(daily_update_employee_list, trigger=trigger1)
