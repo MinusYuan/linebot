@@ -181,7 +181,9 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
     def update_cnt(self, text, phone):
         cur_dt = tw_current_time().strftime("%Y%m%d")
-        re_text = text.replace('/', '').replace('R', '').replace('-', '')
+        # If text startswith dot, that will show Invalid path.
+        # So we try to remove it.
+        re_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '')
         k_doc = self.db.collection("search_cnt").document(f'keyword_{cur_dt}').update({re_text: firestore.Increment(1)})
         u_doc = self.db.collection("search_cnt").document(f'users_{cur_dt}').update({phone: firestore.Increment(1)})
 
