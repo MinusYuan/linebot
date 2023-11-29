@@ -123,7 +123,7 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-# @app.route("/daily_notify", methods=['GET'])
+@app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
@@ -150,6 +150,7 @@ def daily_notify():
     def parse_lst(k_lst, k_counter, u_lst, u_counter):
         for ele in k_lst:
             ele.pop('default')
+            print(f"K Ele: {ele}")
             k_counter += Counter(ele)
         for ele in u_lst:
             ele.pop('default')
