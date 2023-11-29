@@ -25,7 +25,7 @@ class Console:
         self.employee_dict = {s.id: s.to_dict() for s in streams}
         
         cur_dt = tw_current_time()
-        if cur_dt.hour == 23:
+        if cur_dt.hour == 18:
             self.create_default_table(db)
 
         db.close()
