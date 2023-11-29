@@ -150,11 +150,13 @@ def daily_notify():
     def parse_lst(k_lst, k_counter, u_lst, u_counter):
         for ele in k_lst:
             ele.pop('default')
-            print(f"K Ele: {ele}")
-            k_counter += Counter(ele)
+            # print(f"K Ele: {ele}")
+            new_d = {k: v for k, v in ele.items() if isinstance(v, int)}
+            k_counter += Counter(new_d)
         for ele in u_lst:
             ele.pop('default')
-            u_counter += Counter(ele)
+            new_d = {k: v for k, v in ele.items() if isinstance(v, int)}
+            u_counter += Counter(new_d)
         return k_counter, u_counter
 
     def get_sheet_name(freq):
