@@ -212,7 +212,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         self.db = firestore.client()
         d = self.get_current_role(uid)
         role, phone = d.get("role"), d.get("phone_number")
-        print(f"UID: {uid}, Role: {role}, Text: {text}")
+        print(f"UID: {uid}, Phone: {phone}, Role: {role}, Text: {text}")
         chinese_character = re.findall(r'[\u4e00-\u9fff]+', text)
         do_write = role == 1
 
