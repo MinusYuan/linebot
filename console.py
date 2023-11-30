@@ -25,8 +25,7 @@ class Console:
         self.employee_dict = {s.id: s.to_dict() for s in streams}
         
         cur_dt = tw_current_time()
-        if cur_dt.hour == 18:
-            self.create_default_table(db)
+        self.create_default_table(db)
 
         db.close()
 
@@ -35,9 +34,10 @@ class Console:
 
         k_doc = db.collection("search_cnt").document(f'keyword_{tomo_dt}')
         u_doc = db.collection("search_cnt").document(f'users_{tomo_dt}')
-        # Let document exist
-        k_doc.set({"default": 0})
-        u_doc.set({"default": 0})
+        if not k_doc.get().to_dict() or not u_doc.get().to_dict():
+            # Let document exist
+            k_doc.set({"default": 0})
+            u_doc.set({"default": 0})
 
     def close_client(self):
         self.db.close()
