@@ -186,9 +186,8 @@ def daily_notify():
                 df = return_pd_dataframe(keywords, users, date)
                 df.to_excel(writer, sheet_name=sheet_name, index=False, header=True, encoding='utf-8-sig')
                 sheet_list.append(sheet_name)
-                # if freq == 'M':
-                #     date_lst = get_date_list(freq, tw_current_time())
-                #     con.delete_documents(date_lst)
+                if freq == 'W':
+                    con.delete_documents(start_dt)
 
     wb = load_workbook(att_name)
     for sheet in sheet_list:
