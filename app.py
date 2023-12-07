@@ -123,7 +123,7 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-@app.route("/daily_notify", methods=['GET'])
+# @app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
