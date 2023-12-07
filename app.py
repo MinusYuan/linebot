@@ -197,7 +197,7 @@ def daily_notify():
                 elif freq == 'M':
                     merchant_lst = con.get_merchant_list()
                     merchant_df = pd.DataFrame(merchant_lst)
-                    merchant_df = merchant_df.drop(columns=['search_cnt'])
+                    # merchant_df = merchant_df.drop(columns=['search_cnt'])
                     merchant_df = merchant_df[~merchant_df['phone_number'].isin(df['廠商手機號碼'])]
 
                     att_lst.append(f'{ytd.year - 1911}/{ytd.month}月未使用廠商清單.csv')
