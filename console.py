@@ -17,6 +17,17 @@ class Console:
 
         self.get_employee_dict()
 
+    def get_merchant_list(self):
+        db = firestore.client()
+        user_ref = db.collection("users")
+        query_lst = user_ref.where(
+            "role", "==", 1
+        ).get()
+        lst = []
+        for query in query_lst:
+            lst.append(query.to_dict())
+        db.close()
+
     def get_employee_dict(self):
         db = firestore.client()
 

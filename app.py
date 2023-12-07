@@ -123,7 +123,7 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-# @app.route("/daily_notify", methods=['GET'])
+@app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
@@ -170,13 +170,19 @@ def daily_notify():
     print(f"Daily Notify - Start")
     start_dt, ytd = tw_current_time(), get_diff_days_date(1)
     ytd_dt = ytd.strftime("%Y%m%d")
-    att_name = f"auto_gen_{ytd_dt}.xlsx"
+    att_lst = [f"auto_gen_{ytd_dt}.xlsx"]
 
     keywords, users = Counter(), Counter()
     sheet_list = []
-    with pd.ExcelWriter(att_name) as writer:
+
+    mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
+    test_mail = int(os.getenv('test'))
+    if test_mail:
+        mail_to_list, mail_bcc_list = ['rod92540@gmail.com'], []
+
+    with pd.ExcelWriter(att_lst[0]) as writer:
         for freq in ('D', 'W', 'M'):
-            if freq == 'D' or (freq == 'W' and ytd.weekday() == 5) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)):
+            if freq == 'D' or (freq == 'W' and ytd.weekday() == 5) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)) or test_mail:
                 sheet_name = get_sheet_name(freq)
                 date_lst = get_date_list(freq, start_dt)
                 start_dt = date_lst[0]
@@ -188,20 +194,27 @@ def daily_notify():
                 sheet_list.append(sheet_name)
                 if freq == 'W':
                     con.delete_documents(start_dt)
+                elif freq == 'M':
+                    merchant_lst = con.get_merchant_list()
+                    merchant_df = pd.DataFrame(merchant_lst)
+                    merchant_df = merchant_df.drop(columns=['search_cnt'])
+                    merchant_df = merchant_df[~merchant_df['phone_number'].isin(df['廠商手機號碼'])]
 
-    wb = load_workbook(att_name)
+                    att_lst.append(f'{ytd.year - 1911}/{ytd.month}月未使用廠商清單.csv')
+                    merchant_df.to_csv(att_lst[-1], index=False, header=True, encoding='utf-8-sig')
+
+    wb = load_workbook(att_lst[0])
     for sheet in sheet_list:
         ws = wb.get_sheet_by_name(sheet)
         auto_adjust_width(ws)
-    wb.save(att_name)
+    wb.save(att_lst[0])
 
     mail = EMail(os.getenv('EMAIL_KEY'))
-    mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
     mail.send(
         mail_to_list,
         f"每日報表 - TTShop {ytd_dt}",
         "您好，<br><br>此為系統每日自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。",
-        attachments=[att_name],
+        attachments=att_lst,
         bcc_emails=mail_bcc_list
     )
     print(f"Daily Notify - Done")
