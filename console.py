@@ -215,6 +215,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
     def delete_documents(self, tw_dt):
         search_cnt_table = "search_cnt"
+        db = firestore.client()
         search_cnt_docs = db.collection(search_cnt_table).list_documents()
         # No need to check every Sunday. We think it is already removed after every 10 of month.
         if tw_dt.day >= 10:
