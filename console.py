@@ -27,6 +27,7 @@ class Console:
         for query in query_lst:
             lst.append(query.to_dict())
         db.close()
+        return lst
 
     def get_employee_dict(self):
         db = firestore.client()
