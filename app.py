@@ -200,7 +200,7 @@ def daily_notify():
                     merchant_df = merchant_df.drop(columns=['search_cnt'])
                     merchant_df = merchant_df[~merchant_df['phone_number'].isin(df['廠商手機號碼'])]
 
-                    att_lst.append(f'{ytd.year - 1911}/{ytd.month}月未使用廠商清單.csv')
+                    att_lst.append(f'{ytd.year - 1911}{ytd.month}月未使用廠商清單.csv')
                     merchant_df.to_csv(att_lst[-1], index=False, header=True, encoding='utf-8-sig')
 
     wb = load_workbook(att_lst[0])
