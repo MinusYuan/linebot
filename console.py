@@ -90,9 +90,10 @@ class Console:
         )
         return f"設定成功。\n若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。\n請點選下方連結_返回雲端通知管理員:\n{self.return_url}"
         
-    def user_guide(self):
-        product_1 = self.db.collection("products").document("1").get().to_dict()
-        return f"""
+    def user_guide(self, role):
+        if role == 3:
+            product_1 = self.db.collection("products").document("1").get().to_dict()
+            return f"""
 目前商品最新更新時間為: {product_1.get("update_time")}
 
 角色代碼 --> (0:消費者,1:廠商,2:員工,3:管理層)
@@ -103,15 +104,21 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
 <商品規格> <角色代碼> \n    -> (使用特定角色查詢商品規格)
 """
-
-    def role_0_guide(self):
-        return f"""
-管理人員尚未給予權限
-請耐心等候或洽管理人員
-請點選下方連結_返回雲端通知管理員:
+        elif role == 0:
+            return f"""
+ 管理人員尚未給予權限
+ 請耐心等候或洽管理人員
+ 請點選下方連結_返回雲端通知管理員:
+ {self.return_url}
+ """
+        elif role == 1:
+            return f"""
+此機器人目前僅提供查詢
+若有其他問題
+請至下方連結_返回雲端詢問管理員:
 {self.return_url}
 """
-    
+        
     def delete_profile(self, uid):
         self.db = firestore.client()
         users_ref = self.db.collection("users").document(uid)
@@ -245,19 +252,20 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         # Admin
         if role >= 3 and utils.check_command_action(text):
             if text in ("?", "？", "說明", "指令"):
-                return self.user_guide().strip()
+                return self.user_guide(3).strip()
             elif utils.check_ch_command(text):
                 return self.set_phone_role(uid, text)
             elif utils.check_rm_command(text):
                 return self.rm_phone_role(text)
-        elif role == 0 and utils.is_phone_no(text): # 消費者目前無法查詢
-            return self.set_default_role(uid, text)
-        elif role == 0 and utils.check_spec_command(text):
-            return self.role_0_guide()
-        elif not utils.check_spec_command(text) or \
-                len(chinese_character) or \
-                (role == 0 and not utils.is_phone_no(text)):
+        elif role == 0: # 若角色為消費者目前只提供設定電話號碼
+            if utils.is_phone_no(text):
+                return self.set_default_role(uid, text)
+            elif utils.check_spec_command(text):
+                return self.user_guide(0).strip()
             return ''
+        elif not utils.check_spec_command(text) or \
+                len(chinese_character):
+            return self.user_guide(1).strip()
 
         if do_write:
             self.update_cnt(text, phone)
