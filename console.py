@@ -143,7 +143,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
     def lookup(self, role, text):
         prod_ref = self.db.collection("products")
-        spec_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '')
+        spec_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '')
         query_lst = prod_ref.where(
             "spec", "==", spec_text
         ).get()
@@ -206,7 +206,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         cur_dt = tw_current_time().strftime("%Y%m%d")
         # If text startswith dot, that will show Invalid path.
         # So we try to remove it.
-        re_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '')
+        re_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '')
         k_doc = self.db.collection("search_cnt").document(f'keyword_{cur_dt}').update({re_text: firestore.Increment(1)})
         u_doc = self.db.collection("search_cnt").document(f'users_{cur_dt}').update({phone: firestore.Increment(1)})
 
@@ -278,7 +278,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        t = text.replace('R', '').replace('-', '').replace('.', '')
+        t = text.replace('R', '').replace('-', '').replace('.', '').replace('C', '')
         return (t.isdigit() and 4 < len(t) < 9) or re.findall(r'[0-9]{3}/[0-9]{2}', t)
 
     @classmethod
