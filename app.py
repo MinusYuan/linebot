@@ -167,10 +167,11 @@ def daily_notify():
         else:
             return '月報表'
 
-    headers = flask.request.headers
+    headers = request.headers
     bearer = headers.get('Authorization')
     token = bearer.split()[1]
-    print(f"Token: {token}")
+    if token != os.getenv('token', None):
+        return "OK"
 
     print(f"Daily Notify - Start")
     start_dt, ytd = tw_current_time(), get_diff_days_date(1)
