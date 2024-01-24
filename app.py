@@ -123,7 +123,7 @@ def daily_update_employee_list():
     con.get_employee_dict()
     print(f"Update employee list - Done")
 
-# @app.route("/daily_notify", methods=['GET'])
+@app.route("/daily_notify", methods=['GET'])
 def daily_notify():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
@@ -167,6 +167,11 @@ def daily_notify():
         else:
             return '月報表'
 
+    headers = flask.request.headers
+    bearer = headers.get('Authorization')
+    token = bearer.split()[1]
+    print(f"Token: {token}")
+
     print(f"Daily Notify - Start")
     start_dt, ytd = tw_current_time(), get_diff_days_date(1)
     ytd_dt = ytd.strftime("%Y%m%d")
@@ -190,7 +195,7 @@ def daily_notify():
                 keywords, users = parse_lst(keyword_lst, keywords, user_lst, users)
                 date = ytd_dt if freq == 'D' else f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}'
                 df = return_pd_dataframe(keywords, users, date)
-                df.to_excel(writer, sheet_name=sheet_name, index=False, header=True, encoding='utf-8-sig')
+                df.to_excel(writer, sheet_name=sheet_name, index=False, header=True)
                 sheet_list.append(sheet_name)
                 if freq == 'W':
                     con.delete_documents(start_dt)
