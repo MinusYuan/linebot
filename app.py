@@ -224,6 +224,7 @@ def daily_notify():
         bcc_emails=mail_bcc_list
     )
     print(f"Daily Notify - Done")
+    return "Sent Successfully"
 
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
