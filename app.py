@@ -125,6 +125,16 @@ def daily_update_employee_list():
 
 @app.route("/daily_notify", methods=['GET'])
 def daily_notify():
+    headers = request.headers
+    bearer = headers.get('Authorization')
+    token = bearer.split()[1]
+    if token != os.getenv('token', None):
+        return "OK"
+
+    daily_notify_script()
+    return "Sent Successfully"
+
+def daily_notify_script():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
         return zip(*sorted_d)
@@ -166,12 +176,6 @@ def daily_notify():
             return '周報表'
         else:
             return '月報表'
-
-    headers = request.headers
-    bearer = headers.get('Authorization')
-    token = bearer.split()[1]
-    if token != os.getenv('token', None):
-        return "OK"
 
     print(f"Daily Notify - Start")
     start_dt, ytd = tw_current_time(), get_diff_days_date(1)
@@ -224,7 +228,6 @@ def daily_notify():
         bcc_emails=mail_bcc_list
     )
     print(f"Daily Notify - Done")
-    return "Sent Successfully"
 
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
@@ -233,7 +236,7 @@ trigger1 = CronTrigger(year="*", month="*", day="*", hour="4,12", minute="0", se
 trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.add_job(daily_update_employee_list, trigger=trigger1)
-scheduler.add_job(daily_notify, trigger=trigger2)
+scheduler.add_job(daily_notify_script, trigger=trigger2)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
