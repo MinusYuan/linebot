@@ -90,7 +90,7 @@ class Console:
         )
         return f"設定成功。\n若為廠商，請通知管理員您的電話號碼以便於提升您的權限，謝謝。\n請點選下方連結_返回雲端通知管理員:\n{self.return_url}"
 
-    def get_latest_update_time():
+    def get_latest_update_time(self):
         lut_db = firestore.client()
         update_time = lut_db.collection("products").document("1").get().to_dict().get("update_time")
         lut_db.close()
