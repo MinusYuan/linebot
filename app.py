@@ -33,6 +33,7 @@ from linebot.v3.messaging import (
     Configuration,
     ApiClient,
     MessagingApi,
+    PushMessageRequest,
     ReplyMessageRequest,
     TextMessage
 )
@@ -107,6 +108,55 @@ def message_text(event):
         )
     con.close_client()
 
+@app.route("/test_push_message", methods=['GET'])
+def test_push_message():
+    headers = request.headers
+    bearer = headers.get('Authorization')
+    token = bearer.split()[1]
+    if token != os.getenv('token', None):
+        return "OK"
+
+    tw_cur_time = tw_current_time()
+    update_dt_str = con.get_latest_update_time()
+    update_dt = datetim_strptime(update_dt_str)
+    diff_seconds = (tw_cur_time - update_dt).seconds
+    print(f"diff_seconds: {diff_seconds}")
+    
+    notify_uids = os.getenv('notify_uid', '')
+    if not notify_uids:
+        return "No UID"
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        for uid in notify_uids.split(','):
+            line_bot_api.push_message(
+                PushMessageRequest(to=uid, messages=[TextMessage(text='推播測試。')]))
+    return "OK"
+    
+def check_update():
+    tw_cur_time = tw_current_time()
+    # If it's Sunday, we don't check database update or not
+    if tw_cur_time.isoweekday() == 7:
+        return
+
+    update_dt_str = con.get_latest_update_time()
+    update_dt = datetim_strptime(update_dt_str)
+    diff_seconds = (tw_cur_time - update_dt).seconds
+    if diff_seconds <= 3600:
+        return
+
+    notify_uids = os.getenv('notify_uid', '')
+    if not notify_uids:
+        return "No UID"
+
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
+        for uid in notify_uids.split(','):
+            line_bot_api.push_message(
+                PushMessageRequest(to=uid, messages=[TextMessage(text='更新失敗，請確認是否正常。')]))
+    return
+
+
 @app.route("/healthcheck", methods=['GET'])
 def healthcheck():
     return "OK"
@@ -131,10 +181,10 @@ def daily_notify():
     if token != os.getenv('token', None):
         return "OK"
 
-    daily_notify_script()
+    generate_reports()
     return "Sent Successfully"
 
-def daily_notify_script():
+def generate_reports():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
         return zip(*sorted_d)
@@ -234,9 +284,11 @@ scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
 trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
 trigger1 = CronTrigger(year="*", month="*", day="*", hour="4,12", minute="0", second="0")
 trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", second="0")
+trigger3 = CronTrigger(year="*", month="*", day="*", hour="1-12", minute="0", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.add_job(daily_update_employee_list, trigger=trigger1)
-scheduler.add_job(daily_notify_script, trigger=trigger2)
+scheduler.add_job(generate_reports, trigger=trigger2)
+scheduler.add_job(check_update, trigger=trigger3)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 

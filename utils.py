@@ -7,6 +7,9 @@ def tw_current_time():
 def get_diff_days_date(days):
     return tw_current_time() - timedelta(days=days)
 
+def datetim_strptime(dt_str):
+    return datetime.strptime(dt_str, '%Y-%m-%d %H:%M')
+
 def get_end_day(year, month):
     return monthrange(year, month)[1]
 
