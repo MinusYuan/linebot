@@ -15,7 +15,7 @@ class Console:
         self.return_url = os.getenv('warehouse_url')
         self.employee_url = os.getenv('employee_url')
 
-        self.get_employee_dict()
+        self.daily_update()
 
     def get_merchant_list(self):
         db = firestore.client()
@@ -29,14 +29,14 @@ class Console:
         db.close()
         return lst
 
-    def get_employee_dict(self):
+    def daily_update(self):
         db = firestore.client()
 
-        users_ref = db.collection("users")
-        streams = users_ref.where(filter=FieldFilter("role", "in", [2, 3])).stream()
-        self.employee_dict = {s.id: s.to_dict() for s in streams}
+        # users_ref = db.collection("users")
+        # streams = users_ref.where(filter=FieldFilter("role", "in", [2, 3])).stream()
+        # self.employee_dict = {s.id: s.to_dict() for s in streams}
         
-        cur_dt = tw_current_time()
+        # cur_dt = tw_current_time()
         self.create_default_table(db)
 
         db.close()
@@ -64,8 +64,8 @@ class Console:
         return d
 
     def get_current_role(self, uid):
-        if uid in self.employee_dict:
-            return self.employee_dict[uid]
+        # if uid in self.employee_dict:
+        #     return self.employee_dict[uid]
         d = self.db.collection("users").document(uid).get().to_dict()
         return d or {"role": 0}
 

@@ -164,7 +164,7 @@ def keep_awake():
 
 def daily_update_employee_list():
     print(f"Update employee list - Start")
-    con.get_employee_dict()
+    con.daily_update()
     print(f"Update employee list - Done")
 
 @app.route("/daily_notify", methods=['GET'])
