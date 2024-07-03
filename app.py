@@ -235,6 +235,7 @@ def generate_reports():
 
     mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
     test_mail = int(os.getenv('test'))
+    print(f"Test mail: {test_mail}")
     if test_mail:
         mail_to_list, mail_bcc_list = ['rod92540@gmail.com'], []
 
