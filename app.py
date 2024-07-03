@@ -222,7 +222,7 @@ def generate_reports():
             return '月報表'
 
     def get_merchant_name(phone_number):
-        res = [d['merchant_name'] for d in merchant_lst if d['phone_number'] == phone_number]
+        res = [d.get('merchant_name') for d in merchant_lst if d['phone_number'] == phone_number]
         return res[0] if len(res) else ''
 
     print(f"Daily Notify - Start")
