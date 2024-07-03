@@ -235,7 +235,6 @@ def generate_reports():
 
     mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
     test_mail = int(os.getenv('test'))
-    print(f"Test mail: {test_mail}")
     if test_mail:
         mail_to_list, mail_bcc_list = ['rod92540@gmail.com'], []
 
@@ -260,7 +259,7 @@ def generate_reports():
                     att_lst.append(f'{ytd.year - 1911}{ytd.month}月未使用廠商清單.csv')
                     merchant_df.to_csv(att_lst[-1], index=False, header=True, encoding='utf-8-sig')
                     df['廠商名稱'] = df['廠商手機號碼'].apply(get_merchant_name)
-                    df = df[['關鍵字', '關鍵字查詢次數', '廠商名稱', '廠商手機號碼', '總查詢次數', '報表區間']]
+                    df = df[['關鍵字', '關鍵字查詢次數', '廠商名稱', '廠商手機號碼', '廠商手機號碼查詢次數', '總查詢次數', '報表區間']]
 
                 df.to_excel(writer, sheet_name=sheet_name, index=False, header=True)
                 sheet_list.append(sheet_name)
