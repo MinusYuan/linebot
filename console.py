@@ -99,8 +99,10 @@ class Console:
     def user_guide(self, role):
         if role == 3:
             product_1 = self.db.collection("products").document("1").get().to_dict()
+            if not product_1:
+                product_1 = {}
             return f"""
-目前商品最新更新時間為: {product_1.get("update_time")}
+目前商品最新更新時間為: {product_1.get("update_time", "查無資料庫最新更新時間，請聯絡系統管理員。")}
 
 角色代碼 --> (0:消費者,1:廠商,2:員工,3:管理層)
 
