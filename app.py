@@ -199,7 +199,7 @@ def generate_reports():
         
         df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in data.items()]))
         # df['廠商手機號碼'] = '="' + df['廠商手機號碼'] + '"'
-        return df
+        return df, date_keyword
 
     def parse_lst(k_lst, k_counter, u_lst, u_counter):
         for ele in k_lst:
@@ -248,7 +248,7 @@ def generate_reports():
                 keyword_lst, user_lst = con.get_search_cnt_report(date_lst)
                 keywords, users = parse_lst(keyword_lst, keywords, user_lst, users)
                 date = ytd_dt if freq == 'D' else f'{start_dt.strftime("%Y%m%d")}~{ytd_dt}'
-                df = return_pd_dataframe(keywords, users, date)
+                df, date_key = return_pd_dataframe(keywords, users, date)
                 if freq == 'W':
                     con.delete_documents(start_dt)
                 elif freq == 'M':
@@ -259,7 +259,7 @@ def generate_reports():
                     att_lst.append(f'{ytd.year - 1911}{ytd.month}月未使用廠商清單.csv')
                     merchant_df.to_csv(att_lst[-1], index=False, header=True, encoding='utf-8-sig')
                 df['廠商名稱'] = df['廠商手機號碼'].apply(get_merchant_name)
-                df = df[['關鍵字', '關鍵字查詢次數', '廠商名稱', '廠商手機號碼', '廠商手機號碼查詢次數', '總查詢次數', '報表區間']]
+                df = df[['關鍵字', '關鍵字查詢次數', '廠商名稱', '廠商手機號碼', '廠商手機號碼查詢次數', '總查詢次數', date_key]]
 
                 df.to_excel(writer, sheet_name=sheet_name, index=False, header=True)
                 sheet_list.append(sheet_name)
