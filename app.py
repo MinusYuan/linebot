@@ -238,6 +238,7 @@ def generate_reports():
     if test_mail:
         mail_to_list, mail_bcc_list = ['rod92540@gmail.com'], []
 
+    merchant_lst = con.get_merchant_list()
     with pd.ExcelWriter(att_lst[0]) as writer:
         for freq in ('D', 'W', 'M'):
             if freq == 'D' or (freq == 'W' and ytd.weekday() == 5) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)) or test_mail:
@@ -251,15 +252,14 @@ def generate_reports():
                 if freq == 'W':
                     con.delete_documents(start_dt)
                 elif freq == 'M':
-                    merchant_lst = con.get_merchant_list()
                     merchant_df = pd.DataFrame(merchant_lst)
                     merchant_df = merchant_df.drop(columns=['search_cnt'])
                     merchant_df = merchant_df[~merchant_df['phone_number'].isin(df['廠商手機號碼'])]
 
                     att_lst.append(f'{ytd.year - 1911}{ytd.month}月未使用廠商清單.csv')
                     merchant_df.to_csv(att_lst[-1], index=False, header=True, encoding='utf-8-sig')
-                    df['廠商名稱'] = df['廠商手機號碼'].apply(get_merchant_name)
-                    df = df[['關鍵字', '關鍵字查詢次數', '廠商名稱', '廠商手機號碼', '廠商手機號碼查詢次數', '總查詢次數', '報表區間']]
+                df['廠商名稱'] = df['廠商手機號碼'].apply(get_merchant_name)
+                df = df[['關鍵字', '關鍵字查詢次數', '廠商名稱', '廠商手機號碼', '廠商手機號碼查詢次數', '總查詢次數', '報表區間']]
 
                 df.to_excel(writer, sheet_name=sheet_name, index=False, header=True)
                 sheet_list.append(sheet_name)
