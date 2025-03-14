@@ -136,7 +136,7 @@ def check_update():
     update_dt_str = con.get_latest_update_time()
     update_dt = datetim_strptime(update_dt_str)
     diff_seconds = (tw_cur_time - update_dt).seconds
-    if diff_seconds <= 3600:
+    if diff_seconds <= 900:
         return
 
     notify_uids = os.getenv('notify_uid', '')
@@ -285,7 +285,7 @@ scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
 trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
 trigger1 = CronTrigger(year="*", month="*", day="*", hour="4,12", minute="0", second="0")
 trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", second="0")
-trigger3 = CronTrigger(year="*", month="*", day="*", hour="2-12", minute="0", second="0")
+trigger3 = CronTrigger(year="*", month="*", day="*", hour="0-11", minute="40", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.add_job(daily_update_employee_list, trigger=trigger1)
 scheduler.add_job(generate_reports, trigger=trigger2)
