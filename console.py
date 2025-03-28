@@ -234,12 +234,13 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         return k_lst, u_lst
 
     def delete_documents(self, tw_dt):
+        # No need to check every Sunday. We think it is already removed after 10th day every month.
+        if tw_dt.day >= 10:
+            return
+
         search_cnt_table = "search_cnt"
         db = firestore.client()
         search_cnt_docs = db.collection(search_cnt_table).list_documents()
-        # No need to check every Sunday. We think it is already removed after every 10 of month.
-        if tw_dt.day >= 10:
-            return
         
         keep_min_dt = min(tw_dt.replace(day=1), get_diff_days_date(7)).strftime("%Y%m%d")
         for doc in search_cnt_docs:
@@ -247,6 +248,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             doc_dt = id.split('_')[1]
             if doc_dt < keep_min_dt:
                 doc.delete()
+        db.close()
 
     def console(self, uid, text):
         self.db = firestore.client()
