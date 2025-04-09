@@ -197,7 +197,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
         elif role == 2:
             results += f"\n\n以上庫存僅供參考，請以預約當下為主\n換胎預約下方連接_台中輪胎館:\n{self.employee_url}"
-            phone_message =f"\n客服預約專線：{self.customer_service_phone_number}\n總機專線：{self.office_phone_number}"
+            phone_message =f"\n客服預約專線：\n{self.customer_service_phone_number}\n總機專線：\n{self.office_phone_number}"
         results += phone_message
         return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n\n{results}"
 
