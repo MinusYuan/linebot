@@ -14,7 +14,9 @@ class Console:
         firebase_admin.initialize_app(cred)
         self.return_url = os.getenv('warehouse_url')
         self.employee_url = os.getenv('employee_url')
-        self.phone_number = os.getenv('phone_number')
+        self.merchant_see_phone_number = os.getenv('merchant_see_phone_number')
+        self.customer_service_phone_number = os.getenv('customer_service_phone_number')
+        self.office_phone_number = os.getenv('office_phone_number')
 
         self.daily_update()
 
@@ -190,11 +192,13 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             idx += 1
         results = "\n\n".join(res)
         cur_dt = tw_current_time().strftime("%m/%d %H:%M")
+        phone_message = f"\n📞 客服下單專線：{self.merchant_see_phone_number}"
         if role == 1:
             results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
         elif role == 2:
             results += f"\n\n以上庫存僅供參考，請以預約當下為主\n換胎預約下方連接_台中輪胎館:\n{self.employee_url}"
-        results += f"\n📞 客服下單專線：{self.phone_number}"
+            phone_message =f"\n客服預約專線：{self.customer_service_phone_number}\n總機專線：{self.office_phone_number}"
+        results += phone_message
         return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n\n{results}"
 
     def set_phone_role(self, uid, text):
