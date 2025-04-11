@@ -301,7 +301,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 return self.set_default_role(uid, text)
             elif utils.check_spec_command(text):
                 return self.user_guide(0).strip()
-            return '', ''
+            return ''
         elif not utils.check_spec_command(text) or \
                 len(chinese_character):
             return self.user_guide(1).strip()
