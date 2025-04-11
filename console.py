@@ -162,8 +162,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
 
         d_lst = [q.to_dict() for q in query_lst]
-        res, case_0 = [], []
-        idx = 1
+        res, case_0_res = [], []
+        idx, case_0_idx = 1, 1
         for d in sorted(d_lst, key=lambda x: (x['item_name'].split(' ')[0], x['stock_no']), reverse=True):
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
@@ -199,21 +199,25 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 result_s += f"\n成本 {d['cost']}"
 
             if number == 0:
-                case_0.append(f"{name}\n{item_year}\n{result_s}")
+                case_0_res.append(f"{case_0_idx}) {name}\n{item_year}\n{result_s}")
+                case_0_idx += 1
             else:
                 res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
                 idx += 1
-        case_0 = [f"{idx+i}) {row}"for i, row in enumerate(case_0)]
-        results = "\n\n".join(res + case_0)
+        results = "\n\n".join(res)
+        case_0_results = "\n\n".join(case_0_res)
         cur_dt = tw_current_time().strftime("%m/%d %H:%M")
         phone_message = f"\n📞 客服下單專線：{self.merchant_see_phone_number}"
         if role == 1:
             results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
+            case_0_results += f"\n\n以上庫存僅供參考，實際數量皆以管理員為主\n下單下方連結_返回雲端倉庫下單:\n{self.return_url}"
         elif role == 2:
             results += f"\n\n以上庫存僅供參考，請以預約當下為主\n換胎預約下方連接_台中輪胎館:\n{self.employee_url}"
             phone_message =f"\n客服預約專線：\n{self.customer_service_phone_number}\n總機專線：\n{self.office_phone_number}"
+            case_0_results += f"\n\n以上庫存僅供參考，請以預約當下為主\n換胎預約下方連接_台中輪胎館:\n{self.employee_url}"
         results += phone_message
-        return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n\n{results}"
+        case_0_results += phone_message
+        return f"查詢時間 {cur_dt}\n您所查詢的資料{text}如下：\n\n{results}", "" if case_0_idx == 1 else case_0_results
 
     def set_phone_role(self, uid, text):
         role, phone_no = min(int(text.split(' ')[-2]), 3), text.split(' ')[-1]
@@ -286,20 +290,20 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         # Admin
         if role >= 3 and utils.check_command_action(text):
             if text in ("?", "？", "說明", "指令"):
-                return self.user_guide(3).strip()
+                return self.user_guide(3).strip(), ''
             elif utils.check_ch_command(text):
-                return self.set_phone_role(uid, text)
+                return self.set_phone_role(uid, text), ''
             elif utils.check_rm_command(text):
-                return self.rm_phone_role(text)
+                return self.rm_phone_role(text), ''
         elif role == 0: # 若角色為消費者目前只提供設定電話號碼
             if utils.is_phone_no(text):
-                return self.set_default_role(uid, text)
+                return self.set_default_role(uid, text), ''
             elif utils.check_spec_command(text):
-                return self.user_guide(0).strip()
-            return ''
+                return self.user_guide(0).strip(), ''
+            return '', ''
         elif not utils.check_spec_command(text) or \
                 len(chinese_character):
-            return self.user_guide(1).strip()
+            return self.user_guide(1).strip(), ''
 
         if do_write:
             self.update_cnt(text, phone)

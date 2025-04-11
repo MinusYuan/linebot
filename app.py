@@ -90,7 +90,7 @@ def handle_unfollow(event):
 def message_text(event):
     user_id = event.source.user_id
     mess = event.message.text.strip().upper()
-    reply = con.console(user_id, mess)
+    reply, no_stock_reply = con.console(user_id, mess)
     if not reply:
         return
     partial_reply = reply.split('\n')[0]
@@ -100,10 +100,14 @@ def message_text(event):
         profile = line_bot_api.get_profile(user_id)
         name = profile.display_name
         # print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
+        messages = [TextMessage(text=f"{name} 您好\n{reply}")]
+        if no_stock_reply:
+            messages += [TextMessage(text=f"以下項目目前未有庫存，請洽管理員或業務，查詢貨況另外下定。\n{no_stock_reply}")]
+            
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=f"{name} 您好\n{reply}")]
+                messages=messages
             )
         )
     con.close_client()
