@@ -162,7 +162,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
 
         d_lst = [q.to_dict() for q in query_lst]
-        res = []
+        res, case_0 = [], []
         idx = 1
         for d in sorted(d_lst, key=lambda x: (x['item_name'].split(' ')[0], x['stock_no']), reverse=True):
             name, number = d['item_name'], d['stock_no']
@@ -198,9 +198,13 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             if role == 3:
                 result_s += f"\n成本 {d['cost']}"
 
-            res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
-            idx += 1
-        results = "\n\n".join(res)
+            if number == 0:
+                case_0.append(f"{name}\n{item_year}\n{result_s}")
+            else:
+                res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
+                idx += 1
+        case_0 = [f"{idx+i}) {row}"for i, row in enumerate(case_0)]
+        results = "\n\n".join(res + case_0)
         cur_dt = tw_current_time().strftime("%m/%d %H:%M")
         phone_message = f"\n📞 客服下單專線：{self.merchant_see_phone_number}"
         if role == 1:
