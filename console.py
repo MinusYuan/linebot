@@ -207,7 +207,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 idx += 1
         case_0_res = [f"{i}) {row}" for i, row in enumerate(case_0_res, 1)]
         if len(case_0_res):
-            case_0_res.insert(0, '以下項目目前未有庫存，請向管理員/業務洽詢定購。')
+            case_0_res.insert(0, '以下項目未有庫存，請向管理員/業務洽詢定購。')
             case_0_res.insert(0, '----------分隔線----------')
         results = "\n\n".join(res + case_0_res)
         cur_dt = tw_current_time().strftime("%m/%d %H:%M")
