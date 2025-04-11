@@ -206,7 +206,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
                 idx += 1
         case_0_res = [f"{idx+i}) {row}" for i, row in enumerate(case_0_res)]
-        case_0_res.insert(0, '-'*12 + '我是分隔線' + '-'*12)
+        if len(case_0_res):
+            case_0_res.insert(0, '-'*12 + '我是分隔線' + '-'*12)
         results = "\n\n".join(res + case_0_res)
         cur_dt = tw_current_time().strftime("%m/%d %H:%M")
         phone_message = f"\n📞 客服下單專線：{self.merchant_see_phone_number}"
