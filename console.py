@@ -162,9 +162,9 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
 
         d_lst = [q.to_dict() for q in query_lst]
-        res = []
+        res, case_0_res = [], []
         idx = 1
-        for d in sorted(d_lst, key=lambda x: x['item_name']):
+        for d in sorted(d_lst, key=lambda x: (x['item_name'].split(' ')[0], x['stock_no']), reverse=True):
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
             if role == 1 and number > 12:
@@ -172,25 +172,44 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             elif role == 2 and number > 20:
                 number = "20+"
 
+            number_mess_2 = ""
             if role == 1:
                 if not d['wholesale']:
                     continue
-                result_s = f"批發價 {d['wholesale']}/條\n"
+
+                if d['wholesale'] == 8888:
+                    price = "請洽管理員/業務"
+                else:
+                    price = f"{d['wholesale']}/條"
+                if number == 0:
+                    number_mess_2 = "請洽管理員/業務"
+                result_s = f"批發價 {price}\n"
             elif role == 2:
                 result_s = f"現金價 {d['cash_price']}\n刷卡價 {d['credit_price']}\n"
                 if d.get('district_project'):
                     result_s += f"南太平日 {d['district_project']}\n"
                 if d.get('fb_project'):
                     result_s += f"FB合購價 {d['fb_project']}\n"
+                if d.get('hb_project'):
+                    result_s += f"橫濱專案 {d['hb_project']}\n"
+                if number == 0:
+                    number_mess_2 = "請洽門市人員"
             else:
                 result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
-            result_s += f"現貨庫存({number})"
+            result_s += f"現貨庫存({number}) {number_mess_2}"
             if role == 3:
                 result_s += f"\n成本 {d['cost']}"
 
-            res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
-            idx += 1
-        results = "\n\n".join(res)
+            if number == 0:
+                case_0_res.append(f"{name}\n{item_year}\n{result_s}")
+            else:
+                res.append(f"{idx}) {name}\n{item_year}\n{result_s}")
+                idx += 1
+        case_0_res = [f"{i}) {row}" for i, row in enumerate(case_0_res, 1)]
+        if len(case_0_res):
+            case_0_res.insert(0, '以下項目未有庫存，請向管理員/業務洽詢定購。')
+            case_0_res.insert(0, '----------分隔線----------')
+        results = "\n\n".join(res + case_0_res)
         cur_dt = tw_current_time().strftime("%m/%d %H:%M")
         phone_message = f"\n📞 客服下單專線：{self.merchant_see_phone_number}"
         if role == 1:

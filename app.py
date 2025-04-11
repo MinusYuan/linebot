@@ -100,10 +100,12 @@ def message_text(event):
         profile = line_bot_api.get_profile(user_id)
         name = profile.display_name
         # print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
+        messages = [TextMessage(text=f"{name} 您好\n{reply}")]
+
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=f"{name} 您好\n{reply}")]
+                messages=messages
             )
         )
     con.close_client()
