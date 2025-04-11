@@ -102,8 +102,8 @@ def message_text(event):
         # print(f"Line User_id: {user_id}, Display name: {profile.display_name}")
         messages = [TextMessage(text=f"{name} 您好\n{reply}")]
         if no_stock_reply:
-            messages += [TextMessage(text=f"以下項目目前未有庫存，請洽管理員或業務，查詢貨況另外下定。\n{no_stock_reply}")]
-            
+            messages += [TextMessage(text=f"以下項目目前未有庫存，請洽管理員或業務，查詢貨況另外下定。\n\n{no_stock_reply}")]
+
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
