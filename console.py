@@ -164,7 +164,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         d_lst = [q.to_dict() for q in query_lst]
         res = []
         idx = 1
-        for d in sorted(d_lst, key=lambda x: x['item_name']):
+        for d in sorted(d_lst, key=lambda x: (x['item_name'], x['stock_no']), reverse=True):
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
             if role == 1 and number > 12:
@@ -172,19 +172,29 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             elif role == 2 and number > 20:
                 number = "20+"
 
+            number_mess_2 = ""
             if role == 1:
                 if not d['wholesale']:
                     continue
-                result_s = f"批發價 {d['wholesale']}/條\n"
+
+                if d['wholesale'] == 8888:
+                    price = "請洽管理員/業務"
+                else:
+                    price = f"{d['wholesale']}/條"
+                if number == 0:
+                    number_mess_2 = "請洽管理員/業務"
+                result_s = f"批發價 {price}\n"
             elif role == 2:
                 result_s = f"現金價 {d['cash_price']}\n刷卡價 {d['credit_price']}\n"
                 if d.get('district_project'):
                     result_s += f"南太平日 {d['district_project']}\n"
                 if d.get('fb_project'):
                     result_s += f"FB合購價 {d['fb_project']}\n"
+                if d.get('hb_project'):
+                    result_s += f"橫濱專案 {d['hb_project']}\n"
             else:
                 result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
-            result_s += f"現貨庫存({number})"
+            result_s += f"現貨庫存({number}) {number_mess_2}"
             if role == 3:
                 result_s += f"\n成本 {d['cost']}"
 
