@@ -159,7 +159,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             "spec", "==", spec_text
         ).get()
         if not len(query_lst):
-            return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
+            return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}", ''
 
         d_lst = [q.to_dict() for q in query_lst]
         res, case_0_res = [], []
