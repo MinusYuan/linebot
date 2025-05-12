@@ -167,9 +167,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         for d in sorted(d_lst, key=lambda x: (x['item_name'].split(' ')[0], x['stock_no']), reverse=True):
             name, number = d['item_name'], d['stock_no']
             item_year = d['item_year']
-            if role == 1 and number > 12:
-                number = "12+"
-            elif role == 2 and number > 20:
+            if role in (1, 2) and number > 20:
                 number = "20+"
 
             number_mess_2 = ""
