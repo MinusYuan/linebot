@@ -200,7 +200,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
             count = 0
             for key, stock_code in stock_key_mapping:
-                num = d[key]
+                num = int(d[key])
                 if num == 0:
                     continue
                 count += 1
