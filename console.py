@@ -203,7 +203,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 num = int(d[key])
                 if num == 0:
                     continue
-                if num >= 20:
+                if role in (1, 2) and num >= 20:
                     num = "20+"
                 count += 1
                 suffix = ' '
