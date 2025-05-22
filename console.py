@@ -6,6 +6,7 @@ from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 from utils import tw_current_time, get_diff_days_date
+from mapping import stock_key_mapping
 
 class Console:
     def __init__(self):
@@ -165,10 +166,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         res, case_0_res = [], []
         idx = 1
         for d in sorted(d_lst, key=lambda x: (x['item_name'].split(' ')[0], x['stock_no']), reverse=True):
-            name, number = d['item_name'], d['stock_no']
+            name, stock_number = d['item_name'], d['stock_no']
             item_year = d['item_year']
-            if role in (1, 2) and number > 20:
-                number = "20+"
 
             number_mess_2 = ""
             if role == 1:
@@ -179,9 +178,10 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                     price = "請洽管理員/業務"
                 else:
                     price = f"{d['wholesale']}/條"
-                if number == 0:
-                    number_mess_2 = "請洽管理員/業務"
+                if stock_number == 0:
+                    number_mess_2 = "(0) 請洽管理員/業務"
                 result_s = f"批發價 {price}\n"
+                stock_number = ''
             elif role == 2:
                 result_s = f"現金價 {d['cash_price']}\n刷卡價 {d['credit_price']}\n"
                 if d.get('district_project'):
@@ -190,11 +190,25 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                     result_s += f"FB合購價 {d['fb_project']}\n"
                 if d.get('hb_project'):
                     result_s += f"橫濱專案 {d['hb_project']}\n"
-                if number == 0:
-                    number_mess_2 = "請洽門市人員"
+                if stock_number == 0:
+                    number_mess_2 = "(0) 請洽門市人員"
+                stock_number = ''
             else:
                 result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
-            result_s += f"現貨庫存({number}) {number_mess_2}"
+                stock_number = f"({stock_number})"
+            result_s += f"現貨庫存{stock_number} {number_mess_2}"
+
+            count = 0
+            for key, stock_code in stock_key_mapping:
+                num = d[key]
+                if num == 0:
+                    continue
+                count += 1
+                suffix = ' '
+                if count % 2:
+                    result_s += f'\n    '
+                result_s += f'{suffix}{stock_code}({num})'
+
             if role == 3:
                 result_s += f"\n成本 {d['cost']}"
 
