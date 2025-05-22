@@ -299,7 +299,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
         text_split = text.split(' ')
         if role >= 3 and len(text_split) == 2 and utils.check_spec_command(text_split[0]) and text_split[-1].isdigit():
-            role = max(min(int(t), 2), 1)
+            role = max(min(int(text_split[-1]), 2), 1)
             text = text_split[0]
 
         # Admin
