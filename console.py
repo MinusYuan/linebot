@@ -153,7 +153,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         users_ref.document(query[0].id).delete()
         return f"已將 {phone_no} 刪除"
 
-    def lut_product(text):
+    def lut_product(self, text):
         prod_ref = self.db.collection("products")
         spec_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '')
         return prod_ref.where("spec", "==", spec_text).get()
