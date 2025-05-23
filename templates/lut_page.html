@@ -34,14 +34,6 @@
 	.row-selected {
       background-color: yellow !important;
     }
-	table th:first-child,
-    table td:first-child {
-      position: sticky;
-      left: 0;
-      background-color: white;
-      z-index: 2;
-      border-right: 1px solid #ccc;
-    }
   </style>
 </head>
 <body>
@@ -50,7 +42,7 @@
   <input type="text" id="specInput" placeholder="輸入規格">
   <button onclick="querySpec()">查詢</button>
 
-  <div id="resultTable" style="overflow-x:auto;"></div>
+  <div id="resultTable"></div>
 
   <script>
     function querySpec() {
