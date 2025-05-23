@@ -1,10 +1,10 @@
 import os
 from flask import Response, request
 
+user_auth = set((user, pwd) for user, pwd in zip(os.getenv('WEB_USER_NAME', None).split(','), os.getenv('WEB_USER_PASSWD', None).split(',')) if user and pwd)
+
 def check_auth(auth):
-    user = os.getenv('WEB_USER_NAME', None)
-    pwd = os.getenv('WEB_USER_PASSWD', None)
-    return user and pwd and auth and auth.username == user and auth.password == pwd
+    return user_auth and auth and (auth.username, auth.password) in user_auth
 
 # 如果驗證失敗，返回 401 回應
 def authenticate():

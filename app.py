@@ -50,7 +50,7 @@ from openpyxl import load_workbook
 from console import Console, role_2_seen_cols
 from notify import EMail
 from utils import *
-from auth import requires_auth
+from auth import requires_auth, user_auth
 
 app = Flask(__name__)
 
@@ -161,10 +161,10 @@ def healthcheck():
 @app.route("/lut-spec", methods=['GET'])
 @requires_auth
 def table():
-    api_user = os.environ.get("WEB_USER_NAME", None)
-    api_pass = os.environ.get("WEB_USER_PASSWD", None)
+    api_user = user_auth[0][0]
+    api_pass = user_auth[0][-1]
     api_url = os.environ.get("SELF_URL", None)
-    return render_template("test.html", user=api_user, pw=api_pass, url=api_url)
+    return render_template("lut_page.html", user=api_user, pw=api_pass, url=api_url)
 
 @app.route('/lut-api', methods=['POST'])
 @requires_auth
