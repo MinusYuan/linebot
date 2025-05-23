@@ -169,6 +169,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             name, stock_number = d['item_name'], d['stock_no']
             item_year = d['item_year']
 
+            stock_number_str = ''
             if role == 1:
                 if not d['wholesale']:
                     continue
