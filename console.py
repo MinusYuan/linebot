@@ -6,7 +6,7 @@ from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 from utils import tw_current_time, get_diff_days_date
-from mapping import stock_key_mapping, role_2_seen_cols
+from mapping import stock_key_mapping, role_2_seen_cols, role_mapping_table, web_final_cols
 
 class Console:
     def __init__(self):

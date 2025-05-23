@@ -183,6 +183,8 @@ def lut_api(auth):
     df['年份'] = df['年份'].mask(df['年份'] == '').fillna('-')
     df['FB合購價'] = df['FB合購價'].mask(df['FB合購價'] == 0).fillna('-')
     df['橫濱專案'] = df['橫濱專案'].mask(df['橫濱專案'] == 0).fillna('-')
+    for key in ('玉門', '太原', '南投', '竹北'):
+        df[key] = df[key].mask(df[key] > 8).fillna('8+')
     return jsonify(df.to_dict('records'))
 
 def keep_awake():
