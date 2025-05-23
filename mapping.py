@@ -35,6 +35,12 @@ role_mapping_table = {
     }
 }
 
+zero_stock_seen_cols = {
+    "item_name": "品名",
+    "cash_price": "現金價",
+    "credit_price": "刷卡價",
+}
+
 role_2_seen_cols = {
     "item_name": "品名",
     "item_year": "年份",

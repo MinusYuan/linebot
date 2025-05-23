@@ -47,7 +47,7 @@ from collections import Counter
 from openpyxl import load_workbook
 
 # Local package
-from console import Console, role_2_seen_cols, role_mapping_table, web_final_cols
+from console import Console, role_2_seen_cols, role_mapping_table, web_final_cols, zero_stock_seen_cols
 from notify import EMail
 from utils import *
 from auth import requires_auth, user_auth
@@ -178,14 +178,21 @@ def lut_api(auth):
     d = [q.to_dict() for q in data]
     user_key_mapping = role_mapping_table[user]
     all_keys = {**role_2_seen_cols, **user_key_mapping, **web_final_cols}
-    df = pd.DataFrame(data=d)[all_keys.keys()].rename(columns=all_keys)
-    df = df[df['總條數'] != 0]
+    tmp_df = pd.DataFrame(data=d)[all_keys.keys()].rename(columns=all_keys)
+    for key in ('現金價', '刷卡價', 'FB合購價', '橫濱專案'):
+        tmp_df[key] = tmp_df[key].astype(int)
+        
+    df = tmp_df[tmp_df['總條數'] != 0]
     df['年份'] = df['年份'].mask(df['年份'] == '').fillna('-')
     df['FB合購價'] = df['FB合購價'].mask(df['FB合購價'] == 0).fillna('-')
     df['橫濱專案'] = df['橫濱專案'].mask(df['橫濱專案'] == 0).fillna('-')
-    for key in ('玉門', '太原', '南投', '竹北'):
+    df['總條數'] = df['總條數'].mask(df['總條數'] > 20).fillna('20+')
+    for key in ('玉門', '太原', '南投', '竹北', '總倉', '安和', '安和卡'):
         df[key] = df[key].mask(df[key] > 8).fillna('8+')
-    return jsonify(df.to_dict('records'))
+
+    zero_df = tmp_df[tmp_df['總條數'] == 0]
+    zero_df = zero_df[zero_stock_seen_cols.values()]
+    return jsonify({'with_stock': df.to_dict('records'), 'no_stock': zero_df.to_dict('records')})
 
 def keep_awake():
     url = os.getenv('SELF_URL', None)

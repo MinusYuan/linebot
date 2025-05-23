@@ -43,6 +43,7 @@
   <button onclick="querySpec()">查詢</button>
 
   <div id="resultTable"></div>
+  <div id="zeroStockTable"></div>
 
   <script>
     function querySpec() {
@@ -70,102 +71,107 @@
 
    let currentSort = { key: null, asc: true };  // 排序狀態 (列名與升降)
    
-   function renderTable(data) {
-     if (!Array.isArray(data) || data.length === 0) {
-       document.getElementById('resultTable').innerHTML = '<p>查無資料。</p>';
-       return;
-     }
-	 
-	 // 預設排序（第一次以品名升冪）
-     if (!currentSort.key) {
-       const defaultKey = '品名'; // ← 替換成你的欄位名稱
-       if (data[0][defaultKey] !== undefined) {
-         currentSort.key = defaultKey;
-         currentSort.asc = true;
-         data.sort((a, b) => String(a[defaultKey]).localeCompare(String(b[defaultKey])));
-       }
-     }
-   
-     const resultContainer = document.getElementById('resultTable');
-     resultContainer.innerHTML = ''; // 清空舊資料
-   
-     const table = document.createElement('table');
-     const thead = document.createElement('thead');
-     const tbody = document.createElement('tbody');
-   
-     const headerRow = document.createElement('tr');
-     const keys = Object.keys(data[0]);
-   
-     keys.forEach((key) => {
-       const th = document.createElement('th');
-       th.style.cursor = 'pointer';
-	   th.innerHTML = key;
-	   // 加上圖示
-       if (currentSort.key === key) {
-         const icon = document.createElement('i');
-         icon.className = currentSort.asc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill';
-         icon.style.marginLeft = '6px';
-         th.appendChild(icon);
-       }
-   
-       th.addEventListener('click', () => {
-         if (currentSort.key === key) {
-           currentSort.asc = !currentSort.asc; // 反轉排序方向
-         } else {
-           currentSort.key = key;
-           currentSort.asc = true; // 預設為升冪
-         }
-   
-         // 排序資料
-         data.sort((a, b) => {
-           const valA = a[key];
-           const valB = b[key];
-           if (!isNaN(valA) && !isNaN(valB)) {
-             return currentSort.asc ? valA - valB : valB - valA;
-           } else {
-             return currentSort.asc
-               ? String(valA).localeCompare(String(valB))
-               : String(valB).localeCompare(String(valA));
-           }
-         });
-   
-         renderTable(data); // 重新渲染
-       });
-   
-       headerRow.appendChild(th);
-     });
-   
-     thead.appendChild(headerRow);
-   
-     data.forEach((row, index) => {
-       const tr = document.createElement('tr');
-       tr.classList.add('clickable-row');
-       tr.dataset.index = index;
-   
-       Object.values(row).forEach((cell) => {
-         const td = document.createElement('td');
-         td.textContent = cell;
-         tr.appendChild(td);
-       });
-   
-       tr.addEventListener('click', function () {
-         if (this.classList.contains('row-selected')) {
-           this.classList.remove('row-selected'); // 第二次點同一列：取消選取
-         } else {
-           document.querySelectorAll('.clickable-row').forEach((r) =>
-             r.classList.remove('row-selected')
-           );
-           this.classList.add('row-selected'); // 第一次點：選取
-         }
-       });
-   
-       tbody.appendChild(tr);
-     });
-   
-     table.appendChild(thead);
-     table.appendChild(tbody);
-     resultContainer.appendChild(table);
-   }
+  function renderTable(data) {
+    const resultContainer = document.getElementById('resultTable');
+    const zeroStockContainer = document.getElementById('zeroStockTable');
+	zeroStockContainer.innerHTML = '';
+	const zeroStockData = data['no_stock'];
+    const availableStockData = data['with_stock'];
+  
+    if (!Array.isArray(availableStockData) || availableStockData.length === 0) {
+      resultContainer.innerHTML = '<p>查無資料。</p>';
+      zeroStockContainer.innerHTML = '';
+      return;
+    }
+	resultContainer.innerHTML = '';
+  
+    // 預設排序（第一次以品名升冪）
+    if (!currentSort.key) {
+      const defaultKey = '品名'; // ← 替換成你的欄位名稱
+      if (availableStockData[0] && availableStockData[0][defaultKey] !== undefined) {
+        currentSort.key = defaultKey;
+        currentSort.asc = true;
+        availableStockData.sort((a, b) => String(a[defaultKey]).localeCompare(String(b[defaultKey])));
+      }
+    }
+  
+    // 渲染主表格（非零庫存）
+    renderSingleTable(resultContainer, availableStockData, true);
+  
+    // 渲染零庫存表格
+    if (zeroStockData.length > 0) {
+      zeroStockContainer.innerHTML = '<h3>零庫存清單</h3>';
+      renderSingleTable(zeroStockContainer, zeroStockData, false);
+    } else {
+      zeroStockContainer.innerHTML = '';
+    }
+  }
+  
+  function renderSingleTable(container, data, enableSort) {
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+  
+    const headerRow = document.createElement('tr');
+    const keys = Object.keys(data[0]);
+  
+    keys.forEach((key) => {
+      const th = document.createElement('th');
+      th.style.cursor = 'pointer';
+      th.innerHTML = key;
+  
+      if (enableSort && currentSort.key === key) {
+        const icon = document.createElement('i');
+        icon.className = currentSort.asc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill';
+        icon.style.marginLeft = '6px';
+        th.appendChild(icon);
+      }
+  
+      if (enableSort) {
+        th.addEventListener('click', () => {
+          if (currentSort.key === key) {
+            currentSort.asc = !currentSort.asc;
+          } else {
+            currentSort.key = key;
+            currentSort.asc = true;
+          }
+  
+          // 排序資料
+          data.sort((a, b) => {
+            const valA = a[key];
+            const valB = b[key];
+            if (!isNaN(valA) && !isNaN(valB)) {
+              return currentSort.asc ? valA - valB : valB - valA;
+            } else {
+              return currentSort.asc
+                ? String(valA).localeCompare(String(valB))
+                : String(valB).localeCompare(String(valA));
+            }
+          });
+  
+          renderTable([...data, ...zeroStockData]); // 注意：重新渲染需要原始資料
+        });
+      }
+  
+      headerRow.appendChild(th);
+    });
+  
+    thead.appendChild(headerRow);
+  
+    data.forEach((item) => {
+      const row = document.createElement('tr');
+      keys.forEach((key) => {
+        const td = document.createElement('td');
+        td.textContent = item[key];
+        row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+  
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    container.appendChild(table);
+  }
   </script>
 
 </body>
