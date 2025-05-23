@@ -105,7 +105,10 @@
   
     // 渲染零庫存表格
     if (zeroStockData && zeroStockData.length > 0) {
-      zeroStockContainer.innerHTML = '<h3>零庫存清單</h3>';
+      zeroStockContainer.innerHTML = ''; // 清空容器
+	  const title = document.createElement('h3');
+	  title.textContent = '零庫存清單';
+	  zeroStockContainer.appendChild(title);
       renderSingleTable(zeroStockContainer, zeroStockData);
     } else {
       zeroStockContainer.innerHTML = '';
