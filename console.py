@@ -169,7 +169,6 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             name, stock_number = d['item_name'], d['stock_no']
             item_year = d['item_year']
 
-            number_mess_2 = ""
             if role == 1:
                 if not d['wholesale']:
                     continue
@@ -179,9 +178,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 else:
                     price = f"{d['wholesale']}/條"
                 if stock_number == 0:
-                    number_mess_2 = "(0) 請洽管理員/業務"
+                    stock_number_str = "(0) 請洽管理員/業務"
                 result_s = f"批發價 {price}\n"
-                stock_number_str = ''
             elif role == 2:
                 result_s = f"現金價 {d['cash_price']}\n刷卡價 {d['credit_price']}\n"
                 if d.get('district_project'):
@@ -191,12 +189,11 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 if d.get('hb_project'):
                     result_s += f"橫濱專案 {d['hb_project']}\n"
                 if stock_number == 0:
-                    number_mess_2 = "(0) 請洽門市人員"
-                stock_number_str = ''
+                    stock_number_str = "(0) 請洽門市人員"
             else:
                 result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
                 stock_number_str = f"({stock_number})"
-            result_s += f"現貨庫存{stock_number_str} {number_mess_2}"
+            result_s += f"現貨庫存{stock_number_str}"
 
             count = 0
             for key, stock_code in stock_key_mapping:
@@ -204,10 +201,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 if num == 0:
                     continue
 
-                if role == 1 and num >= 8:
+                if role in (1, 2) and num >= 8:
                     num = "8+"
-                if role == 2 and num >= 20:
-                    num = "20+"
                 count += 1
                 suffix = ' '
                 if count % 2:
