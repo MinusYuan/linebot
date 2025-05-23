@@ -6,7 +6,7 @@ from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 from utils import tw_current_time, get_diff_days_date
-from mapping import stock_key_mapping
+from mapping import stock_key_mapping, role_2_seen_cols
 
 class Console:
     def __init__(self):
@@ -153,12 +153,13 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         users_ref.document(query[0].id).delete()
         return f"已將 {phone_no} 刪除"
 
-    def lookup(self, role, text):
+    def lut_product(text):
         prod_ref = self.db.collection("products")
         spec_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '')
-        query_lst = prod_ref.where(
-            "spec", "==", spec_text
-        ).get()
+        return prod_ref.where("spec", "==", spec_text).get()
+
+    def lookup(self, role, text):
+        query_lst = self.lut_product(text)
         if not len(query_lst):
             return f"您搜索的商品目前沒有現貨。\n需要調貨，請點選下方連結_返回雲端詢問\n{self.return_url}"
 

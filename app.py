@@ -18,7 +18,7 @@ import sys
 import requests
 from argparse import ArgumentParser
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template, jsonify
 from linebot.v3 import (
      WebhookHandler
 )
@@ -47,9 +47,10 @@ from collections import Counter
 from openpyxl import load_workbook
 
 # Local package
-from console import Console
+from console import Console, role_2_seen_cols
 from notify import EMail
 from utils import *
+from auth import requires_auth
 
 app = Flask(__name__)
 
@@ -156,6 +157,28 @@ def check_update():
 @app.route("/healthcheck", methods=['GET'])
 def healthcheck():
     return "OK"
+
+@app.route("/lut-spec", methods=['GET'])
+@requires_auth
+def table():
+    api_user = os.environ.get("WEB_USER_NAME", None)
+    api_pass = os.environ.get("WEB_USER_PASSWD", None)
+    api_url = os.environ.get("SELF_URL", None)
+    return render_template("test.html", user=api_user, pw=api_pass, url=api_url)
+
+@app.route('/lut-api', methods=['POST'])
+@requires_auth
+def lut_api():
+    data = request.get_json()
+    spec = data.get('spec', '').strip()
+
+    data = con.lut_product(spec)
+    d = [q.to_dict() for q in data]
+    df = pd.DataFrame(data=d)[role_2_seen_cols.keys()].rename(columns=role_2_seen_cols)
+    df['年份'] = df['年份'].mask(df['年份'] == '').fillna('-')
+    df['FB合購價'] = df['FB合購價'].mask(df['FB合購價'] == 0).fillna('-')
+    df['橫濱專案'] = df['橫濱專案'].mask(df['橫濱專案'] == 0).fillna('-')
+    return jsonify(df.to_dict('records'))
 
 def keep_awake():
     url = os.getenv('SELF_URL', None)

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>輪胎規格查詢系統</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+	.clickable-row {
+      cursor: pointer;
+    }
+    .clickable-row:hover {
+      background-color: #f0f0f0;
+    }
+	.row-selected {
+      background-color: yellow !important;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>輪胎規格查詢</h1>
+  <input type="text" id="specInput" placeholder="輸入規格">
+  <button onclick="querySpec()">查詢</button>
+
+  <div id="resultTable"></div>
+
+  <script>
+    function querySpec() {
+      const spec = document.getElementById('specInput').value;
+	  const API_USER = "{{ user }}";
+      const API_PASS = "{{ pw }}";
+	  const API_URL = "{{ url }}"
+
+      fetch(API_URL + '/lut-api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+		  'Authorization': 'Basic ' + btoa(API_USER + ':' + API_PASS)
+        },
+        body: JSON.stringify({ spec: spec })
+      })
+      .then(response => response.json())
+      .then(data => {
+        renderTable(data);
+      })
+      .catch(error => {
+        document.getElementById('resultTable').innerHTML = '<p style="color:red;">查詢失敗：' + error + '</p>';
+      });
+    }
+
+   let currentSort = { key: null, asc: true };  // 排序狀態 (列名與升降)
+   
+   function renderTable(data) {
+     if (!Array.isArray(data) || data.length === 0) {
+       document.getElementById('resultTable').innerHTML = '<p>查無資料。</p>';
+       return;
+     }
+   
+     const resultContainer = document.getElementById('resultTable');
+     resultContainer.innerHTML = ''; // 清空舊資料
+   
+     const table = document.createElement('table');
+     const thead = document.createElement('thead');
+     const tbody = document.createElement('tbody');
+   
+     const headerRow = document.createElement('tr');
+     const keys = Object.keys(data[0]);
+   
+     keys.forEach((key) => {
+       const th = document.createElement('th');
+       th.textContent = key;
+       th.style.cursor = 'pointer';
+   
+       th.addEventListener('click', () => {
+         if (currentSort.key === key) {
+           currentSort.asc = !currentSort.asc; // 反轉排序方向
+         } else {
+           currentSort.key = key;
+           currentSort.asc = true; // 預設為升冪
+         }
+   
+         // 排序資料
+         data.sort((a, b) => {
+           const valA = a[key];
+           const valB = b[key];
+           if (!isNaN(valA) && !isNaN(valB)) {
+             return currentSort.asc ? valA - valB : valB - valA;
+           } else {
+             return currentSort.asc
+               ? String(valA).localeCompare(String(valB))
+               : String(valB).localeCompare(String(valA));
+           }
+         });
+   
+         renderTable(data); // 重新渲染
+       });
+   
+       headerRow.appendChild(th);
+     });
+   
+     thead.appendChild(headerRow);
+   
+     data.forEach((row, index) => {
+       const tr = document.createElement('tr');
+       tr.classList.add('clickable-row');
+       tr.dataset.index = index;
+   
+       Object.values(row).forEach((cell) => {
+         const td = document.createElement('td');
+         td.textContent = cell;
+         tr.appendChild(td);
+       });
+   
+       tr.addEventListener('click', function () {
+         document.querySelectorAll('.clickable-row').forEach((r) =>
+           r.classList.remove('row-selected')
+         );
+         this.classList.add('row-selected');
+       });
+   
+       tbody.appendChild(tr);
+     });
+   
+     table.appendChild(thead);
+     table.appendChild(tbody);
+     resultContainer.appendChild(table);
+   }
+  </script>
+
+</body>
+</html>
