@@ -161,8 +161,9 @@ def healthcheck():
 @app.route("/lut-spec", methods=['GET'])
 @requires_auth
 def table():
-    api_user = user_auth[0][0]
-    api_pass = user_auth[0][-1]
+    user_info = list(user_auth)[0]
+    api_user = user_info[0]
+    api_pass = user_info[-1]
     api_url = os.environ.get("SELF_URL", None)
     return render_template("lut_page.html", user=api_user, pw=api_pass, url=api_url)
 
