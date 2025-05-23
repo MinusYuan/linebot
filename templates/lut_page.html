@@ -74,7 +74,7 @@
   function renderTable(data) {
     const resultContainer = document.getElementById('resultTable');
     const zeroStockContainer = document.getElementById('zeroStockTable');
-	zeroStockContainer.innerHTML = '';
+	
 	const zeroStockData = data['no_stock'];
     const availableStockData = data['with_stock'];
   
@@ -96,18 +96,20 @@
     }
   
     // 渲染主表格（非零庫存）
-    renderSingleTable(resultContainer, availableStockData, true);
+    renderSingleTable(resultContainer, availableStockData);
   
     // 渲染零庫存表格
     if (zeroStockData.length > 0) {
       zeroStockContainer.innerHTML = '<h3>零庫存清單</h3>';
-      renderSingleTable(zeroStockContainer, zeroStockData, false);
+      renderSingleTable(zeroStockContainer, zeroStockData);
     } else {
       zeroStockContainer.innerHTML = '';
     }
   }
   
-  function renderSingleTable(container, data, enableSort) {
+  function renderSingleTable(container, data) {
+    container.innerHTML = ''
+	
     const table = document.createElement('table');
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
@@ -120,38 +122,38 @@
       th.style.cursor = 'pointer';
       th.innerHTML = key;
   
-      if (enableSort && currentSort.key === key) {
+      if (currentSort.key === key) {
         const icon = document.createElement('i');
         icon.className = currentSort.asc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill';
         icon.style.marginLeft = '6px';
         th.appendChild(icon);
       }
   
-      if (enableSort) {
-        th.addEventListener('click', () => {
-          if (currentSort.key === key) {
-            currentSort.asc = !currentSort.asc;
+      th.addEventListener('click', () => {
+        if (this.classList.contains('row-selected')) {
+           this.classList.remove('row-selected'); // 第二次點同一列：取消選取
+        } else {
+          document.querySelectorAll('.clickable-row').forEach((r) =>
+            r.classList.remove('row-selected')
+          );
+          this.classList.add('row-selected'); // 第一次點：選取
+        }
+  
+        // 排序資料
+        data.sort((a, b) => {
+          const valA = a[key];
+          const valB = b[key];
+          if (!isNaN(valA) && !isNaN(valB)) {
+            return currentSort.asc ? valA - valB : valB - valA;
           } else {
-            currentSort.key = key;
-            currentSort.asc = true;
+            return currentSort.asc
+              ? String(valA).localeCompare(String(valB))
+              : String(valB).localeCompare(String(valA));
           }
-  
-          // 排序資料
-          data.sort((a, b) => {
-            const valA = a[key];
-            const valB = b[key];
-            if (!isNaN(valA) && !isNaN(valB)) {
-              return currentSort.asc ? valA - valB : valB - valA;
-            } else {
-              return currentSort.asc
-                ? String(valA).localeCompare(String(valB))
-                : String(valB).localeCompare(String(valA));
-            }
-          });
-  
-          renderTable([...data, ...zeroStockData]); // 注意：重新渲染需要原始資料
         });
-      }
+		
+		renderSingleTable(data);
+      });
   
       headerRow.appendChild(th);
     });
