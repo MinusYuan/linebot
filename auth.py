@@ -19,6 +19,6 @@ def requires_auth(f):
         auth = request.authorization
         if not check_auth(auth):
             return authenticate()
-        return f(*args, **kwargs)
+        return f(auth, *args, **kwargs)
     decorated.__name__ = f.__name__
     return decorated
