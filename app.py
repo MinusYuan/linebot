@@ -47,7 +47,7 @@ from collections import Counter
 from openpyxl import load_workbook
 
 # Local package
-from console import Console, role_2_seen_cols
+from console import Console, role_2_seen_cols, role_mapping_table, web_final_cols
 from notify import EMail
 from utils import *
 from auth import requires_auth, user_auth
@@ -161,22 +161,25 @@ def healthcheck():
 
 @app.route("/lut-spec", methods=['GET'])
 @requires_auth
-def table():
-    user_info = list(user_auth)[0]
-    api_user = user_info[0]
-    api_pass = user_info[-1]
+def table(auth):
+    api_user = auth.username
+    api_pass = auth.password
     api_url = os.environ.get("SELF_URL", None)
     return render_template("lut_page.html", user=api_user, pw=api_pass, url=api_url)
 
 @app.route('/lut-api', methods=['POST'])
 @requires_auth
-def lut_api():
+def lut_api(auth):
     data = request.get_json()
     spec = data.get('spec', '').strip()
+    user = auth.username
 
     data = con.lut_product(spec)
     d = [q.to_dict() for q in data]
-    df = pd.DataFrame(data=d)[role_2_seen_cols.keys()].rename(columns=role_2_seen_cols)
+    user_key_mapping = role_mapping_table[user]
+    all_keys = {**role_2_seen_cols, **user_key_mapping, **web_final_cols}
+    df = pd.DataFrame(data=d)[all_keys.keys()].rename(columns=all_keys)
+    df = df[df['總條數'] != 0]
     df['年份'] = df['年份'].mask(df['年份'] == '').fillna('-')
     df['FB合購價'] = df['FB合購價'].mask(df['FB合購價'] == 0).fillna('-')
     df['橫濱專案'] = df['橫濱專案'].mask(df['橫濱專案'] == 0).fillna('-')
