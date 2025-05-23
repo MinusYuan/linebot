@@ -47,7 +47,12 @@
 
   <script>
     function querySpec() {
-      const spec = document.getElementById('specInput').value;
+      const spec = document.getElementById('specInput').value.trim();
+	  if (!spec) {
+        alert("請輸入輪胎規格再查詢！");
+        return;
+      }
+	  
 	  const API_USER = "{{ user }}";
       const API_PASS = "{{ pw }}";
 	  const API_URL = "{{ url }}"
@@ -85,10 +90,10 @@
     }
 	resultContainer.innerHTML = '';
   
-    // 預設排序（第一次以品名升冪）
+    // 預設排序
     if (!currentSort.key) {
       const defaultKey = '品名'; // ← 替換成你的欄位名稱
-      if (availableStockData[0] && availableStockData[0][defaultKey] !== undefined) {
+      if (availableStockData[0][defaultKey] !== undefined) {
         currentSort.key = defaultKey;
         currentSort.asc = true;
         availableStockData.sort((a, b) => String(a[defaultKey]).localeCompare(String(b[defaultKey])));
@@ -99,7 +104,7 @@
     renderSingleTable(resultContainer, availableStockData);
   
     // 渲染零庫存表格
-    if (zeroStockData.length > 0) {
+    if (zeroStockData && zeroStockData.length > 0) {
       zeroStockContainer.innerHTML = '<h3>零庫存清單</h3>';
       renderSingleTable(zeroStockContainer, zeroStockData);
     } else {
@@ -130,13 +135,11 @@
       }
   
       th.addEventListener('click', () => {
-        if (this.classList.contains('row-selected')) {
-           this.classList.remove('row-selected'); // 第二次點同一列：取消選取
+        if (currentSort.key === key) {
+          currentSort.asc = !currentSort.asc;
         } else {
-          document.querySelectorAll('.clickable-row').forEach((r) =>
-            r.classList.remove('row-selected')
-          );
-          this.classList.add('row-selected'); // 第一次點：選取
+          currentSort.key = key;
+          currentSort.asc = true;
         }
   
         // 排序資料
@@ -162,6 +165,15 @@
   
     data.forEach((item) => {
       const row = document.createElement('tr');
+	  row.classList.add('clickable-row');
+	  
+	  row.addEventListener('click', () => {
+        document.querySelectorAll('.clickable-row').forEach(r =>
+          r.classList.remove('row-selected')
+        );
+        row.classList.add('row-selected');
+      });
+	  
       keys.forEach((key) => {
         const td = document.createElement('td');
         td.textContent = item[key];
