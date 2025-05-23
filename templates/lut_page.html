@@ -116,7 +116,8 @@
   }
   
   function renderSingleTable(container, data) {
-    container.innerHTML = ''
+    const oldTable = container.querySelector('table');
+	if (oldTable) oldTable.remove();
 	
     const table = document.createElement('table');
     const thead = document.createElement('thead');
