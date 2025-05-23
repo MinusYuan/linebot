@@ -168,10 +168,17 @@
 	  row.classList.add('clickable-row');
 	  
 	  row.addEventListener('click', () => {
+        const isSelected = row.classList.contains('row-selected');
+		
+		// 先全部移除
         document.querySelectorAll('.clickable-row').forEach(r =>
           r.classList.remove('row-selected')
         );
-        row.classList.add('row-selected');
+		
+		// 若之前沒選，則加上；有選則取消選取
+        if (!isSelected) {
+          row.classList.add('row-selected');
+        }
       });
 	  
       keys.forEach((key) => {
