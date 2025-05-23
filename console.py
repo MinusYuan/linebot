@@ -154,8 +154,10 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         return f"已將 {phone_no} 刪除"
 
     def lut_product(self, text):
-        prod_ref = self.db.collection("products")
+        db = firestore.client()
+        prod_ref = db.collection("products")
         spec_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '')
+        db.close()
         return prod_ref.where("spec", "==", spec_text).get()
 
     def lookup(self, role, text):
