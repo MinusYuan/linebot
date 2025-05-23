@@ -53,6 +53,7 @@ from utils import *
 from auth import requires_auth, user_auth
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
