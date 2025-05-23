@@ -39,8 +39,10 @@
 <body>
 
   <h1>輪胎規格查詢</h1>
-  <input type="text" id="specInput" placeholder="請輸入規格">
-  <button onclick="querySpec()">查詢</button>
+  <form onsubmit="event.preventDefault(); querySpec();">
+    <input type="text" id="specInput" placeholder="請輸入規格" />
+    <button type="submit">查詢</button>
+  </form>
 
   <div id="resultTable"></div>
   <div id="zeroStockTable"></div>
