@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- 支援行動裝置 -->
+  <title>TTShop台中輪胎館</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      display: block;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .clickable-row {
+      cursor: pointer;
+    }
+
+    .clickable-row:hover {
+      background-color: #f0f0f0;
+    }
+
+    .row-selected {
+      background-color: yellow !important;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      th, td {
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      input, button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>輪胎規格查詢</h1>
+  <form onsubmit="event.preventDefault(); querySpec();">
+    <input type="text" id="specInput" placeholder="請輸入規格" />
+    <button type="submit">查詢</button>
+  </form>
+
+  <div id="resultTable"></div>
+  <div id="zeroStockTable"></div>
+
+  <script>
+    function querySpec() {
+      const spec = document.getElementById('specInput').value.trim();
+      if (!spec) {
+        alert("請輸入輪胎規格再查詢！");
+        return;
+      }
+
+      const API_USER = "{{ user }}";
+      const API_PASS = "{{ pw }}";
+      const API_URL = "{{ url }}";
+
+      fetch(API_URL + '/lut-api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa(API_USER + ':' + API_PASS)
+        },
+        body: JSON.stringify({ spec: spec })
+      })
+      .then(response => response.json())
+      .then(data => {
+        renderTable(data);
+      })
+      .catch(error => {
+        document.getElementById('resultTable').innerHTML = '<p style="color:red;">查詢失敗：' + error + '</p>';
+      });
+    }
+
+    let currentSort = { key: null, asc: true };
+
+    function renderTable(data) {
+      const resultContainer = document.getElementById('resultTable');
+      const zeroStockContainer = document.getElementById('zeroStockTable');
+
+      const zeroStockData = data['no_stock'];
+      const availableStockData = data['with_stock'];
+
+      if (!Array.isArray(availableStockData) || availableStockData.length === 0) {
+        resultContainer.innerHTML = '<p>查無資料。</p>';
+        zeroStockContainer.innerHTML = '';
+        return;
+      }
+
+      resultContainer.innerHTML = '';
+
+      if (!currentSort.key) {
+        const defaultKey = '品名';
+        if (availableStockData[0][defaultKey] !== undefined) {
+          currentSort.key = defaultKey;
+          currentSort.asc = true;
+          availableStockData.sort((a, b) => String(a[defaultKey]).localeCompare(String(b[defaultKey])));
+        }
+      }
+
+      renderSingleTable(resultContainer, availableStockData);
+
+      if (zeroStockData && zeroStockData.length > 0) {
+        zeroStockContainer.innerHTML = '';
+        const title = document.createElement('h3');
+        title.textContent = '零庫存清單';
+        zeroStockContainer.appendChild(title);
+        renderSingleTable(zeroStockContainer, zeroStockData);
+      } else {
+        zeroStockContainer.innerHTML = '';
+      }
+    }
+
+    function renderSingleTable(container, data) {
+      const oldTable = container.querySelector('table');
+      if (oldTable) oldTable.remove();
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+
+      const headerRow = document.createElement('tr');
+      const keys = Object.keys(data[0]);
+
+      keys.forEach((key) => {
+        const th = document.createElement('th');
+        th.style.cursor = 'pointer';
+        th.innerHTML = key;
+
+        if (currentSort.key === key) {
+          const icon = document.createElement('i');
+          icon.className = currentSort.asc ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill';
+          icon.style.marginLeft = '6px';
+          th.appendChild(icon);
+        }
+
+        th.addEventListener('click', () => {
+          if (currentSort.key === key) {
+            currentSort.asc = !currentSort.asc;
+          } else {
+            currentSort.key = key;
+            currentSort.asc = true;
+          }
+
+          data.sort((a, b) => {
+            const valA = a[key];
+            const valB = b[key];
+            if (!isNaN(valA) && !isNaN(valB)) {
+              return currentSort.asc ? valA - valB : valB - valA;
+            } else {
+              return currentSort.asc
+                ? String(valA).localeCompare(String(valB))
+                : String(valB).localeCompare(String(valA));
+            }
+          });
+
+          renderSingleTable(container, data);
+        });
+
+        headerRow.appendChild(th);
+      });
+
+      thead.appendChild(headerRow);
+
+      data.forEach((item) => {
+        const row = document.createElement('tr');
+        row.classList.add('clickable-row');
+
+        row.addEventListener('click', () => {
+          const isSelected = row.classList.contains('row-selected');
+          document.querySelectorAll('.clickable-row').forEach(r =>
+            r.classList.remove('row-selected')
+          );
+          if (!isSelected) {
+            row.classList.add('row-selected');
+          }
+        });
+
+        keys.forEach((key) => {
+          const td = document.createElement('td');
+          td.textContent = item[key];
+          row.appendChild(td);
+        });
+
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+  </script>
+</body>
+</html>
