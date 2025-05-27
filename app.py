@@ -167,14 +167,6 @@ def table(auth):
     api_url = os.environ.get("SELF_URL", None)
     return render_template("lut_page.html", user=api_user, pw=api_pass, url=api_url)
 
-@app.route("/lut-spec-test", methods=['GET'])
-@requires_auth
-def table_test(auth):
-    api_user = auth.username
-    api_pass = auth.password
-    api_url = os.environ.get("SELF_URL", None)
-    return render_template("lut_page_test.html", user=api_user, pw=api_pass, url=api_url)
-
 @app.route('/lut-api', methods=['POST'])
 @requires_auth
 def lut_api(auth):
