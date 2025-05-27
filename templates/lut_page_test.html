@@ -71,12 +71,21 @@
         font-size: 14px;
       }
     }
+	
+	button {
+      padding: 6px 12px;
+      font-size: 14px;
+      width: auto;
+      max-width: 150px;
+      margin-left: 10px;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
 
   <h1>輪胎規格查詢</h1>
-  <form onsubmit="event.preventDefault(); querySpec();">
+  <form onsubmit="event.preventDefault(); querySpec();" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
     <input type="text" id="specInput" placeholder="請輸入規格" />
     <button type="submit">查詢</button>
   </form>
