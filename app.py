@@ -186,11 +186,11 @@ def lut_api(auth):
     df['年份'] = df['年份'].mask(df['年份'] == '').fillna('-')
     df['FB合購價'] = df['FB合購價'].mask(df['FB合購價'] == 0).fillna('-')
     df['橫濱專案'] = df['橫濱專案'].mask(df['橫濱專案'] == 0).fillna('-')
-    df['總條數'] = df['總條數'].mask(df['總條數'] > 20).fillna('20+')
     df['總條數'] = df['總條數'].mask(df['總條數'] < 0).fillna(0)
+    df['總條數'] = df['總條數'].mask(df['總條數'] > 20).fillna('20+')
     for key in ('玉門', '太原', '南投', '竹北', '總倉', '安和', '安和卡'):
-        df[key] = df[key].mask(df[key] > 8).fillna('8+')
         df[key] = df[key].mask(df[key] < 0).fillna(0)
+        df[key] = df[key].mask(df[key] > 8).fillna('8+')
 
     zero_df = tmp_df[tmp_df['總條數'] == 0]
     zero_df = zero_df[zero_stock_seen_cols.values()]
