@@ -173,6 +173,15 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             item_year = d['item_year']
 
             stock_number_str = ''
+            stock_number_str = f"({stock_number})"
+            if role in (1, 2):
+                contact = "管理員/業務" if role == 1 else "門市人員"
+
+                if stock_number <= 0:
+                    stock_number_str = f"(0) 請洽{contact}"
+                elif stock_number > 20:
+                    stock_number_str = "(20+)"
+
             if role == 1:
                 if not d['wholesale']:
                     continue
@@ -181,7 +190,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                     price = "請洽管理員/業務"
                 else:
                     price = f"{d['wholesale']}/條"
-                if stock_number == 0:
+                if stock_number <= 0:
                     stock_number_str = "(0) 請洽管理員/業務"
                 result_s = f"批發價 {price}\n"
             elif role == 2:
@@ -192,14 +201,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                     result_s += f"FB合購價 {d['fb_project']}\n"
                 if d.get('hb_project'):
                     result_s += f"橫濱專案 {d['hb_project']}\n"
-                stock_number_str = f"({stock_number})"
-                if stock_number <= 0:
-                    stock_number_str = "(0) 請洽門市人員"
-                elif stock_number > 20:
-                    stock_number_str = "(20+)"
             else:
                 result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
-                stock_number_str = f"({stock_number})"
             result_s += f"現貨庫存{stock_number_str}"
 
             count = 0
