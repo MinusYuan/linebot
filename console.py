@@ -194,6 +194,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                     result_s += f"橫濱專案 {d['hb_project']}\n"
                 if stock_number == 0:
                     stock_number_str = "(0) 請洽門市人員"
+                elif stock_number > 20:
+                    stock_number_str = "(20+)"
             else:
                 result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
                 stock_number_str = f"({stock_number})"
