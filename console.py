@@ -326,6 +326,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 len(chinese_character):
             return self.user_guide(1).strip()
 
+        text = text.upper().replace('O', '0')
         if do_write:
             self.update_cnt(text, phone)
         return self.lookup(role, text)
