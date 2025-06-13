@@ -175,10 +175,10 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             stock_number_str = ''
             stock_number_str = f"({stock_number})"
             if role in (1, 2):
-                contact = "管理員/業務" if role == 1 else "門市人員"
+                contactor = "管理員/業務" if role == 1 else "門市人員"
 
                 if stock_number <= 0:
-                    stock_number_str = f"(0) 請洽{contact}"
+                    stock_number_str = f"(0) 請洽{contactor}"
                 elif stock_number > 20:
                     stock_number_str = "(20+)"
 
@@ -190,8 +190,6 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                     price = "請洽管理員/業務"
                 else:
                     price = f"{d['wholesale']}/條"
-                if stock_number <= 0:
-                    stock_number_str = "(0) 請洽管理員/業務"
                 result_s = f"批發價 {price}\n"
             elif role == 2:
                 result_s = f"現金價 {d['cash_price']}\n刷卡價 {d['credit_price']}\n"
@@ -335,7 +333,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 class utils:
     @classmethod
     def check_spec_command(cls, text):
-        t = text.replace('R', '').replace('-', '').replace('.', '').replace('C', '')
+        t = text.upper().replace('R', '').replace('-', '').replace('.', '').replace('C', '').replace('O', '0')
         return (t.isdigit() and 4 < len(t) < 9) or re.findall(r'[0-9]{3}/[0-9]{2}', t)
 
     @classmethod
