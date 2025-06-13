@@ -4,8 +4,7 @@ requests
 line-bot-sdk
 pandas
 apscheduler
-httpx[http2]==0.24.1
-firebase-admin
+firebase-admin==6.8.0
 google-cloud-firestore
 sendgrid
 openpyxl
