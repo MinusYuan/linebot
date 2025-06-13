@@ -156,7 +156,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
     def lut_product(self, text):
         db = firestore.client()
         prod_ref = db.collection("products")
-        spec_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '')
+        spec_text = text.upper().replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '').replace('O', '0')
         db.close()
         return prod_ref.where("spec", "==", spec_text).get()
 
@@ -326,7 +326,6 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 len(chinese_character):
             return self.user_guide(1).strip()
 
-        text = text.upper().replace('O', '0')
         if do_write:
             self.update_cnt(text, phone)
         return self.lookup(role, text)
