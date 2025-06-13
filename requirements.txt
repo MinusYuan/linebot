@@ -4,6 +4,7 @@ requests
 line-bot-sdk
 pandas
 apscheduler
+httpx[http2]==0.24.1
 firebase-admin
 google-cloud-firestore
 sendgrid
