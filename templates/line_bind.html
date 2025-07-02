@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LINE帳號會員綁定</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      max-width: 100%;
+    }
+
+    label {
+      font-size: 1rem;
+      margin-top: 1rem;
+      display: block;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    small {
+      color: gray;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+      background-color: #06c755;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #04b44b;
+    }
+
+    .success {
+      color: green;
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .error {
+      color: red;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    #contactForm {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="title">LINE帳號會員綁定</h2>
+  <div id="message"></div>
+
+  <form id="contactForm">
+    <label for="email">LINE 註冊信箱：</label>
+    <input type="email" id="email" name="email" readonly required />
+    <small>此信箱由您的 LINE 帳號提供，無法修改。</small>
+
+    <input type="hidden" id="userId" name="userId" />
+    <input type="submit" value="綁定" />
+  </form>
+
+  <script>
+    document.getElementById("contactForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const userId = document.getElementById("userId").value;
+      const message = document.getElementById("message");
+
+      const emailList = [email];
+
+      try {
+        const checkResponse = await fetch("{{ url }}/check-mail-existed", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emails: emailList })
+        });
+
+        const result = await checkResponse.json();
+        if (Array.isArray(result.exists) && result.exists.length > 0) {
+          const errorList = result.exists.map(e => `📧 ${e}`).join("<br>");
+          message.innerHTML = `<p class="error">以下信箱已被綁定過囉～<br>${errorList}<br>如有問題，請聯繫客服。</p>`;
+          return;
+        }
+      } catch (error) {
+        message.innerHTML = `<p class="error">❌ 信箱檢查時發生錯誤：${error}</p>`;
+        return;
+      }
+
+      try {
+        const response = await fetch("{{ url }}/register", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            emails: emailList,
+            userId
+          })
+        });
+
+        if (response.status === 200) {
+          message.innerHTML = `<p class="success">🎉 綁定成功！感謝您的配合！</p>`;
+          document.getElementById("contactForm").style.display = "none";
+          setTimeout(() => liff.closeWindow(), 2000);
+        } else {
+          message.innerHTML = `<p class="error">❌ 綁定失敗（錯誤代碼：${response.status}），請稍後再試或聯繫客服。</p>`;
+        }
+      } catch (error) {
+        message.innerHTML = `<p class="error">❌ 無法完成綁定：${error}</p>`;
+      }
+    });
+
+    async function initializeLiff() {
+      try {
+        await liff.init({ liffId: "{{ liff_id }}" });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const idToken = liff.getIDToken();
+        const userId = profile.userId;
+        const payload = JSON.parse(atob(idToken.split('.')[1]));
+        const email = payload.email;
+
+        document.getElementById("userId").value = userId;
+        document.getElementById("email").value = email || "";
+
+        const checkResponse = await fetch("{{ url }}/check_user?userId=" + encodeURIComponent(userId));
+        const checkResult = await checkResponse.text();
+
+        if (checkResult.trim() === "not found") {
+          document.getElementById("contactForm").style.display = "block";
+        } else {
+          document.getElementById("message").innerHTML = "<p class='success'>✅ 您已經完成綁定囉，不需要重複操作！</p>";
+          setTimeout(() => liff.closeWindow(), 2000);
+        }
+
+      } catch (error) {
+        document.getElementById("message").innerHTML = "<p class='error'>初始化失敗或無法取得資料：" + error + "</p>";
+      }
+    }
+
+    initializeLiff();
+  </script>
+</body>
+</html>

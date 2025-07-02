@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+from collections import defaultdict
 from calendar import monthrange
+import os
 
 def tw_current_time():
     return datetime.utcnow() + timedelta(hours=8)
@@ -42,3 +44,14 @@ def auto_adjust_width(ws):
                 pass
         adjusted_width = (max_length + 2) * 1.5
         ws.column_dimensions[column].width = adjusted_width
+
+def get_line_liff_mapping(case):
+    mapping = defaultdict(lambda: defaultdict(str))
+    for k, v in os.environ.items():
+        try:
+            k = k.upper()
+            idx = k.index(f'_{case}_LINE_LIFF_ID')
+            mapping[case][k[:idx].lower()] = v
+        except:
+            pass
+    return mapping

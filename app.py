@@ -47,10 +47,11 @@ from collections import Counter
 from openpyxl import load_workbook
 
 # Local package
-from console import Console, role_2_seen_cols, role_mapping_table, web_final_cols, zero_stock_seen_cols
+from console import Console, role_2_seen_cols, role_mapping_table, web_final_cols, zero_stock_seen_cols, liff_id_mapping
 from notify import EMail
 from utils import *
 from auth import requires_auth, user_auth
+
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
@@ -202,6 +203,14 @@ def keep_awake():
         print("URL Not FOUND.")
         return
     resp = requests.get(f"{url}/healthcheck")
+
+@app.route('/<source>/line_bind', methods=['GET'])
+def line_bind(source):
+    url_api = os.getenv('SELF_URL', None)
+    liff_id = liff_id_mapping['BIND'].get(source, None)
+    if liff_id is None:
+        return abort(404)
+    return render_template('line_bind.html', liff_id=liff_id, url=url_api)
 
 def daily_update_employee_list():
     print(f"Update employee list - Start")

@@ -1,3 +1,7 @@
+from utils import get_line_liff_mapping
+
+liff_id_mapping = get_line_liff_mapping('BIND')
+
 stock_key_mapping = [
     ('100', '總倉'),
     ('101', '安和'),
