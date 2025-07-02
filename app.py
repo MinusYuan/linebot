@@ -210,7 +210,22 @@ def line_bind(source):
     liff_id = liff_id_mapping['BIND'].get(source, None)
     if liff_id is None:
         return abort(404)
-    return render_template('line_bind.html', liff_id=liff_id, url=url_api)
+    return render_template('line_bind.html', liff_id=liff_id, url=url_api, source=source)
+
+@app.route("/<source>/check-user", methods=['POST'])
+def check_user(source):
+    data = request.get_json()
+    user_id = data['userId']
+    if con.lut_line_liff_bind(source, user_id) is not None:
+        return "exists"
+    return "not found"
+
+@app.route('/<source>/register', methods=['POST'])
+def register(source):
+    data = request.get_json()
+    con.write_line_liff_member(source, data['userId'], data['email'])
+
+    return jsonify({'result': 'Success'})
 
 def daily_update_employee_list():
     print(f"Update employee list - Start")

@@ -21,6 +21,28 @@ class Console:
 
         self.daily_update()
 
+    def lut_line_liff_bind(self, source, user_id):
+        db = firestore.client()
+        line_liff_ref = db.collection(f"{source}_line_liff")
+        user_info = line_liff_ref.document(user_id).get().to_dict()
+        db.close()
+        return user_info
+
+    def write_line_liff_member(self, source, user_id, mail):
+        db = firestore.client()
+        line_liff_ref = db.collection(f"{source}_line_liff")
+        line_liff_ref.document(user_id).set(
+            {
+                "line_user_id": user_id,
+                "line_register_mail": mail,
+                "create_dt": tw_current_time().strftime("%Y-%m-%d"),
+                "create_ts": tw_current_time().strftime("%H:%M:%S"),
+            }
+        )
+
+        db.close()
+
+
     def get_merchant_list(self):
         db = firestore.client()
         user_ref = db.collection("users")
