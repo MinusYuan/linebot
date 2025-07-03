@@ -149,8 +149,8 @@
         document.getElementById("email").value = email || "";
 		
 		if (!email || email.trim() === "") {
-          alert("⚠️ 無法取得您的 LINE 信箱，稍後會關閉本頁面並請您授予信箱權限以完成綁定流程，謝謝。");
-          setTimeout(() => liff.closeWindow(), 1500);
+          alert("⚠️ 無法取得您的 LINE 信箱，請關閉本頁面並授予信箱權限以利完成綁定，謝謝。");
+          liff.closeWindow();
           return;
         }
 
