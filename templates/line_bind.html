@@ -144,6 +144,12 @@
 
         document.getElementById("userId").value = userId;
         document.getElementById("email").value = email || "";
+		
+		if (!email || email.trim() === "") {
+          alert("⚠️ 無法取得您的 LINE 信箱，稍後會關閉本頁面並請您授予信箱權限以完成綁定流程，謝謝。");
+          setTimeout(() => liff.closeWindow(), 1500);
+          return;
+        }
 
         const checkResponse = await fetch("{{ url }}/{{ source }}/check-user", {
           method: 'POST',
