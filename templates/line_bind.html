@@ -138,6 +138,9 @@
 
         const profile = await liff.getProfile();
         const idToken = liff.getIDToken();
+		if (!idToken || !idToken.includes('.')) {
+          throw new Error("無法取得有效的 ID Token，請確認您已授權 email 權限");
+        }
         const userId = profile.userId;
         const payload = JSON.parse(atob(idToken.split('.')[1]));
         const email = payload.email;
