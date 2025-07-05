@@ -35,7 +35,9 @@ from linebot.v3.messaging import (
     MessagingApi,
     PushMessageRequest,
     ReplyMessageRequest,
-    TextMessage
+    TextMessage,
+    FlexMessage,
+    FlexContainer
 )
 
 from linebot.models import UnfollowEvent
@@ -227,6 +229,18 @@ def register(source):
 
     return jsonify({'result': 'Success'})
 
+# @app.route('/<source>/push-message', methods=['POST'])
+# def register(source):
+#     data = request.get_json()
+#
+#     with open('templates/flex_message_template.txt') as f:
+#         bubble_string = f.read()
+#     bubble_string = bubble_string.replace('{{number}}', data['number']).replace('{{created}}', data['created']).\
+#         replace('{{sbname}}', data['sbname']).replace('{{bbname}}', data['bbname'])
+#     bubble_d = json.loads(bubble_string)
+#
+#     return jsonify({'result': 'Success'})
+
 def daily_update_employee_list():
     print(f"Update employee list - Start")
     con.daily_update()
@@ -346,8 +360,8 @@ def generate_reports():
     print(f"Daily Notify - Done")
 
 # Use scheduler to health check
-scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 1})
-trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/10")
+scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 2})
+trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/5", second="15")
 trigger1 = CronTrigger(year="*", month="*", day="*", hour="4,12", minute="0", second="0")
 trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", second="0")
 trigger3 = CronTrigger(year="*", month="*", day="*", hour="0-11", minute="40", second="0")
