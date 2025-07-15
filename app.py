@@ -97,7 +97,7 @@ def message_text(event):
     tw_cur_time = tw_current_time().strftime('%Y-%m-%d %H:%M:%S')
     maintain_scheduler = os.environ['maintain_scheduler']
     start_mt, end_mt = maintain_scheduler.split('~')
-    if start_mt <= tw_cur_time <= end_mt and user_id != os.env['admin_line_uid']:
+    if start_mt <= tw_cur_time <= end_mt and user_id != os.environ['admin_line_uid']:
         reply = f"此機器人正在維護中，維護時間為: {maintain_scheduler}。"
     else:
         mess = event.message.text.strip().upper()
