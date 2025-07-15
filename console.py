@@ -6,7 +6,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 
-from utils import tw_current_time, get_diff_days_date
+from utils import tw_current_time, get_diff_days_date, get_month_ago
 from mapping import *
 
 class Console:
@@ -343,6 +343,17 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             if doc_dt < keep_min_dt:
                 doc.delete()
         db.close()
+
+    def delete_logs(self, tw_dt):
+        month_ago = get_month_ago(tw_dt, 6).strftime("%Y-%m-%d")
+        db = firestore.client()
+        log_collection = db.collection("log")
+        query_lst = log_collection.where(
+            "created_date", "<=", month_ago
+        ).get()
+        for query in query_lst:
+            doc = log_collection.document(query.id)
+            doc.delete()
 
     def console(self, uid, text):
         self.db = firestore.client()

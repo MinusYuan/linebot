@@ -288,12 +288,14 @@ def generate_reports():
 
     def parse_lst(k_lst, k_counter, u_lst, u_counter):
         for ele in k_lst:
-            ele.pop('default')
+            if 'default' in ele:
+                ele.pop('default')
             # print(f"K Ele: {ele}")
             new_d = {k: v for k, v in ele.items() if isinstance(v, int)}
             k_counter += Counter(new_d)
         for ele in u_lst:
-            ele.pop('default')
+            if 'default' in ele:
+                ele.pop('default')
             new_d = {k: v for k, v in ele.items() if isinstance(v, int)}
             u_counter += Counter(new_d)
         return k_counter, u_counter
@@ -348,6 +350,7 @@ def generate_reports():
 
                 df.to_excel(writer, sheet_name=sheet_name, index=False, header=True)
                 sheet_list.append(sheet_name)
+                con.delete_logs(start_dt)
 
     wb = load_workbook(att_lst[0])
     for sheet in sheet_list:

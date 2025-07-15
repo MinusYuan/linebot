@@ -1,3 +1,4 @@
+from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 from collections import defaultdict
 from calendar import monthrange
@@ -14,6 +15,9 @@ def datetim_strptime(dt_str):
 
 def get_end_day(year, month):
     return monthrange(year, month)[1]
+
+def get_month_ago(cur_dt, month_diff):
+    return cur_dt - relativedelta(months=month_diff)
 
 def get_date_list(freq, end_dt):
     if freq == 'D':
