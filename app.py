@@ -94,10 +94,17 @@ def handle_unfollow(event):
 @handler.add(MessageEvent, message=TextMessageContent)
 def message_text(event):
     user_id = event.source.user_id
-    mess = event.message.text.strip().upper()
-    reply = con.console(user_id, mess)
-    if not reply:
-        return
+    tw_cur_time = tw_current_time().strftime('%Y-%m-%d %H:%M:%S')
+    maintain_scheduler = os.environ['maintain_scheduler']
+    start_mt, end_mt = maintain_scheduler.split('~')
+    if start_mt <= tw_cur_time <= end_mt and user_id != os.env['admin_line_uid']:
+        reply = f"此機器人正在維護中，維護時間為: {maintain_scheduler}。"
+    else:
+        mess = event.message.text.strip().upper()
+        reply = con.console(user_id, mess)
+        con.close_client()
+        if not reply:
+            return
     partial_reply = reply.split('\n')[0]
     print(f"UID: {user_id}, Reply: {partial_reply}")
     with ApiClient(configuration) as api_client:
@@ -113,7 +120,6 @@ def message_text(event):
                 messages=messages
             )
         )
-    con.close_client()
 
 @app.route("/test_push_message", methods=['GET'])
 def test_push_message():
