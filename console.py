@@ -290,7 +290,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         doc.update({**data, phone: m_data})
 
     def write_log(self, text, phone):
-        doc_name = uuid.uuid4()
+        doc_name = str(uuid.uuid4())
         cur_dt = tw_current_time()
 
         doc = self.db.collection("log").document(doc_name).set(
