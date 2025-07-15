@@ -1,5 +1,6 @@
 import os
 import re
+import uuid
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -70,12 +71,9 @@ class Console:
     def create_default_table(self, db):
         tomo_dt = get_diff_days_date(-1).strftime("%Y%m%d")
 
-        k_doc = db.collection("search_cnt").document(f'keyword_{tomo_dt}')
-        u_doc = db.collection("search_cnt").document(f'users_{tomo_dt}')
-        if not k_doc.get().to_dict() or not u_doc.get().to_dict():
-            # Let document exist
-            k_doc.set({"default": 0})
-            u_doc.set({"default": 0})
+        doc = db.collection("search_cnt").document(tomo_dt)
+        if not doc.get().to_dict(): # Let document exist
+            doc.set({})
 
     def close_client(self):
         self.db.close()
@@ -175,12 +173,14 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         users_ref.document(query[0].id).delete()
         return f"已將 {phone_no} 刪除"
 
+    def get_abbr_spec_text(self, text):
+        return text.upper().replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '').replace('O', '0')
+
     def lut_product(self, text):
         db = firestore.client()
         prod_ref = db.collection("products")
-        spec_text = text.upper().replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '').replace('O', '0')
         db.close()
-        return prod_ref.where("spec", "==", spec_text).get()
+        return prod_ref.where("spec", "==", text).get()
 
     def lookup(self, role, text):
         query_lst = self.lut_product(text)
@@ -279,40 +279,67 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
     def update_cnt(self, text, phone):
         cur_dt = tw_current_time().strftime("%Y%m%d")
-        # If text startswith dot, that will show Invalid path.
-        # So we try to remove it.
-        re_text = text.replace('/', '').replace('R', '').replace('-', '').replace('.', '').replace('C', '')
-        k_doc = self.db.collection("search_cnt").document(f'keyword_{cur_dt}').update({re_text: firestore.Increment(1)})
-        u_doc = self.db.collection("search_cnt").document(f'users_{cur_dt}').update({phone: firestore.Increment(1)})
+
+        doc = self.db.collection("search_cnt").document(cur_dt)
+        data = doc.get().to_dict()
+        m_data = data.get(phone, {})
+        cur_count = m_data.get(text, 0) + 1
+
+        # Update
+        m_data = {**m_data, text: cur_count}
+        doc.update({**data, phone: m_data})
+
+    def write_log(self, text, phone):
+        doc_name = uuid.uuid4()
+        cur_dt = tw_current_time()
+
+        doc = self.db.collection("log").document(doc_name).set(
+            {
+                'phone': phone,
+                'spec': text,
+                'created_date': cur_dt.strftime('%Y-%m-%d'),
+                'created_timestamp': cur_dt.strftime('%Y-%m-%d %H:%M:%S')
+            }
+        )
 
     def get_search_cnt_report(self, dt_lst):
         db = firestore.client()
         k_lst, u_lst = [], []
         for dt in dt_lst:
             dt_str = dt.strftime("%Y%m%d")
-            k_doc = db.collection("search_cnt").document(f'keyword_{dt_str}').get().to_dict()
-            u_doc = db.collection("search_cnt").document(f'users_{dt_str}').get().to_dict()
-            if not k_doc:
+            doc = db.collection("search_cnt").document(dt_str).get().to_dict()
+            if not doc:
                 continue
+            k_d = {}
+            u_d = {}
+            # Table should look like {'phone': {'spec': 2, 'spec1': 5}}
+            for k, v in doc.items():
+                # Update keyword table
+                total_count = 0
+                for sub_k, sub_v in v.items():
+                    total_count += sub_v
+                    k_count = k_d.get(sub_k, 0) + sub_v
+                    k_d = {**k_d, sub_k: k_count}
 
-            k_lst.append(k_doc)
-            u_lst.append(u_doc)
+                # Update user table
+                u_count = u_d.get(k, 0) + total_count
+                u_d = {**u_d, k: u_count}
+
+            k_lst.append(k_d)
+            u_lst.append(u_d)
         db.close()
         return k_lst, u_lst
 
     def delete_documents(self, tw_dt):
-        # No need to check every Sunday. We think it is already removed after 10th day every month.
-        if tw_dt.day >= 10:
-            return
-
         search_cnt_table = "search_cnt"
         db = firestore.client()
         search_cnt_docs = db.collection(search_cnt_table).list_documents()
         
         keep_min_dt = min(tw_dt.replace(day=1), get_diff_days_date(7)).strftime("%Y%m%d")
         for doc in search_cnt_docs:
-            id = doc.get().id
-            doc_dt = id.split('_')[1]
+            doc_dt = doc.get().id
+            if '_' in doc_dt:
+                doc_dt = doc_dt.split('_')[1]
             if doc_dt < keep_min_dt:
                 doc.delete()
         db.close()
@@ -348,9 +375,11 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 len(chinese_character):
             return self.user_guide(1).strip()
 
+        spec_text = self.get_abbr_spec_text(text)
         if do_write:
-            self.update_cnt(text, phone)
-        return self.lookup(role, text)
+            self.update_cnt(spec_text, phone)
+            self.write_log(spec_text, phone)
+        return self.lookup(role, spec_text)
 
 class utils:
     @classmethod

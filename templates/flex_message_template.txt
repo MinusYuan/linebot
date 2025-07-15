@@ -1,0 +1,26 @@
+{
+  "type": "bubble",
+  "header": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "電子發票明細",
+        "weight": "bold",
+        "size": "xxl",
+        "color": "#ffffff",
+        "align": "center"
+      },
+      {
+        "type": "text",
+        "text": "{{number}}",
+        "size": "xl",
+        "align": "center",
+        "color": "#ffffff",
+        "weight": "bold"
+      }
+    ],
+    "backgroundColor": "#27AE60"
+  }
+}
