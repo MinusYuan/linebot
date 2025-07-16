@@ -52,7 +52,7 @@ from openpyxl import load_workbook
 from console import Console, role_2_seen_cols, role_mapping_table, web_final_cols, zero_stock_seen_cols, liff_id_mapping
 from notify import EMail
 from utils import *
-from auth import requires_auth, user_auth
+from auth import requires_auth
 
 
 app = Flask(__name__)
