@@ -221,6 +221,8 @@ def lut_log(auth):
         return res[0] if len(res) else ''
 
     data = request.get_json()
+    if not data.get('endDate'):
+        data['endDate'] = data['startDate']
     data = con.lut_log(data)
     df = pd.DataFrame(data=data)
     merchant_lst = con.get_merchant_list()
