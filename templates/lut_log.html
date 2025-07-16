@@ -187,7 +187,8 @@
         return;
       }
 
-      const [startDate, endDate] = dateRange.split(" to ");
+      let [startDate, endDate] = dateRange.split(" to ");
+	  if (!endDate) endDate = startDate;
 
       lastQuery = { phone, spec, startDate, endDate };
 
