@@ -188,12 +188,12 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
 
         phone = data.get('phone')
         if phone:
-            log_ref = prod_ref.where("phone", "==", phone)
+            log_ref = log_ref.where("phone", "==", phone)
 
         spec = data.get('spec')
         if spec:
-            log_ref = prod_ref.where("spec", "==", spec)
-        results = log_ref.where("created_date", ">=", data['startDate']).where("created_date", ">=", data['endDate']).get()
+            log_ref = log_ref.where("spec", "==", spec)
+        results = log_ref.where("created_date", ">=", data['startDate']).where("created_date", "<=", data['endDate']).get()
         db.close()
         return [r.to_dict() for r in results]
 
