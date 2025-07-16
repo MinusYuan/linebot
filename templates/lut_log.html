@@ -94,7 +94,6 @@
 
   <div id="result"></div>
 
-  <!-- flatpickr -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
     const today = new Date();
@@ -113,29 +112,39 @@
     let tableData = [];
     let currentPage = 1;
     const rowsPerPage = 20;
+    let lastQuery = {};
 
     function renderTable(data, page = 1) {
       const start = (page - 1) * rowsPerPage;
       const end = start + rowsPerPage;
       const paginated = data.slice(start, end);
 
-      let html = `
+      const queryInfoHtml = `
+        <div style="margin-bottom: 15px;">
+          <strong>查詢條件：</strong>
+          ${lastQuery.phone ? `手機號碼：${lastQuery.phone}　` : ""}
+          ${lastQuery.spec ? `規格：${lastQuery.spec}　` : ""}
+          日期區間：${lastQuery.startDate} ~ ${lastQuery.endDate}
+        </div>
+      `;
+
+      const tableHtml = `
         <table>
           <thead>
             <tr>
               <th>商家名稱</th>
               <th>手機號碼</th>
               <th>規格</th>
-              <th>時間</th>
+              <th>查詢時間</th>
             </tr>
           </thead>
           <tbody>
             ${paginated.map(row => `
               <tr>
-                <td>${row.商家名稱}</td>
-                <td>${row.手機號碼}</td>
-                <td>${row.規格}</td>
-                <td>${row.時間}</td>
+                <td>${row.merchant_name}</td>
+                <td>${row.phone}</td>
+                <td>${row.spec}</td>
+                <td>${row.created_timestamp}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -147,7 +156,7 @@
         </div>
       `;
 
-      resultDiv.innerHTML = html;
+      resultDiv.innerHTML = queryInfoHtml + tableHtml;
 
       document.querySelectorAll(".pagination button").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -180,17 +189,13 @@
 
       const [startDate, endDate] = dateRange.split(" to ");
 
-      // 呼叫後端 API
+      lastQuery = { phone, spec, startDate, endDate };
+
       try {
         const response = await fetch('/lut-log', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            phone,
-            spec,
-            startDate,
-            endDate
-          })
+          body: JSON.stringify({ phone, spec, startDate, endDate })
         });
 
         if (!response.ok) throw new Error("伺服器錯誤");
@@ -206,7 +211,6 @@
         currentPage = 1;
         renderTable(tableData, currentPage);
 
-        // 清空欄位
         phoneInput.value = "";
         specInput.value = "";
         dateRangeInput._flatpickr.clear();

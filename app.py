@@ -216,14 +216,16 @@ def lut_log_history(auth):
 @app.route('/lut-log', methods=['POST'])
 @requires_auth
 def lut_log(auth):
+    def get_merchant_name(phone_number):
+        res = [d.get('merchant_name', '') for d in merchant_lst if d['phone_number'] == phone_number]
+        return res[0] if len(res) else ''
+
     data = request.get_json()
-    print(f"lut_log: {data}")
-    df = pd.DataFrame([
-        {"商家名稱": "商家A", "手機號碼": "0912345678", "規格": "紅色", "時間": "2025-07-01 10:00:00"},
-        {"商家名稱": "商家B", "手機號碼": "0922333444", "規格": "藍色", "時間": "2025-07-02 11:00:00"},
-        {"商家名稱": "商家C", "手機號碼": "0933444555", "規格": "黑色", "時間": "2025-07-03 12:00:00"}
-    ])
-    return jsonify(df.to_dict(orient='records'))
+    data = con.lut_log(data)
+    df = pd.DataFrame(data=data)
+    merchant_lst = con.get_merchant_list()
+    df['merchant_name'] = df['phone'].apply(get_merchant_name)
+    return jsonify(df.to_dict('records'))
 
 def keep_awake():
     url = os.getenv('SELF_URL', None)

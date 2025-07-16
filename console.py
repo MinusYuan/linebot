@@ -182,6 +182,19 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         db.close()
         return prod_ref.where("spec", "==", text).get()
 
+    def lut_log(self, data):
+        db = firestore.client()
+        log_ref = db.collection("log")
+
+        if phone := data.get('phone'):
+            log_ref = prod_ref.where("phone", "==", phone)
+
+        if spec := data.get('spec'):
+            log_ref = prod_ref.where("spec", "==", spec)
+        results = log_ref.where("created_date", ">=", data['startDate']).where("created_date", ">=", data['endDate']).get()
+        db.close()
+        return [r.to_dict() for r in results]
+
     def lookup(self, role, text):
         query_lst = self.lut_product(text)
         if not len(query_lst):

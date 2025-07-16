@@ -10,7 +10,6 @@ def check_auth(auth, auth_table):
 def requires_auth(f):
     def decorated(*args, **kwargs):
         auth = request.authorization
-        print(f"Check - {request.path}")
         auth_table = admin_auth if 'lut-log' in request.path else lut_user_auth
         if not check_auth(auth, auth_table):
             return Response(
