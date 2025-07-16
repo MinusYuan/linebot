@@ -186,10 +186,12 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         db = firestore.client()
         log_ref = db.collection("log")
 
-        if phone := data.get('phone'):
+        phone = data.get('phone')
+        if phone:
             log_ref = prod_ref.where("phone", "==", phone)
 
-        if spec := data.get('spec'):
+        spec = data.get('spec')
+        if spec:
             log_ref = prod_ref.where("spec", "==", spec)
         results = log_ref.where("created_date", ">=", data['startDate']).where("created_date", ">=", data['endDate']).get()
         db.close()
