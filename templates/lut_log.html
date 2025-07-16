@@ -228,11 +228,7 @@
 
         tableData = data;
         currentPage = 1;
-
-        // 預設先以查詢時間遞減排序
-        sortAsc = false;
-        tableData.sort((a, b) => new Date(b.created_timestamp) - new Date(a.created_timestamp));
-
+        // 不預設排序，保持原始順序
         renderTable(tableData, currentPage);
 
         phoneInput.value = "";
