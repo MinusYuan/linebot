@@ -50,6 +50,11 @@
       text-align: left;
     }
 
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
     .pagination {
       margin-top: 10px;
     }
@@ -113,6 +118,7 @@
     let currentPage = 1;
     const rowsPerPage = 20;
     let lastQuery = {};
+    let sortAsc = true;
 
     function renderTable(data, page = 1) {
       const start = (page - 1) * rowsPerPage;
@@ -135,7 +141,7 @@
               <th>商家名稱</th>
               <th>手機號碼</th>
               <th>規格</th>
-              <th>查詢時間</th>
+              <th class="sortable" id="sort-time">查詢時間 ${sortAsc ? '↑' : '↓'}</th>
             </tr>
           </thead>
           <tbody>
@@ -158,11 +164,23 @@
 
       resultDiv.innerHTML = queryInfoHtml + tableHtml;
 
+      // 綁定分頁按鈕
       document.querySelectorAll(".pagination button").forEach(btn => {
         btn.addEventListener("click", () => {
           currentPage = parseInt(btn.dataset.page);
           renderTable(tableData, currentPage);
         });
+      });
+
+      // 綁定排序按鈕
+      document.getElementById("sort-time").addEventListener("click", () => {
+        sortAsc = !sortAsc;
+        tableData.sort((a, b) => {
+          const dateA = new Date(a.created_timestamp);
+          const dateB = new Date(b.created_timestamp);
+          return sortAsc ? dateA - dateB : dateB - dateA;
+        });
+        renderTable(tableData, 1);
       });
     }
 
@@ -188,7 +206,7 @@
       }
 
       let [startDate, endDate] = dateRange.split(" to ");
-	  if (!endDate) endDate = startDate;
+      if (!endDate) endDate = startDate;
 
       lastQuery = { phone, spec, startDate, endDate };
 
@@ -210,6 +228,11 @@
 
         tableData = data;
         currentPage = 1;
+
+        // 預設先以查詢時間遞減排序
+        sortAsc = false;
+        tableData.sort((a, b) => new Date(b.created_timestamp) - new Date(a.created_timestamp));
+
         renderTable(tableData, currentPage);
 
         phoneInput.value = "";

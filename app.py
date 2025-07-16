@@ -225,6 +225,7 @@ def lut_log(auth):
     df = pd.DataFrame(data=data)
     merchant_lst = con.get_merchant_list()
     df['merchant_name'] = df['phone'].apply(get_merchant_name)
+    df = df.sort_values(by=['phone', 'spec', 'created_timestamp'])
     return jsonify(df.to_dict('records'))
 
 def keep_awake():
