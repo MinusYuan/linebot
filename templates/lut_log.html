@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>查詢表單</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+
+    .form-inline {
+      display: flex;
+      align-items: flex-end;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 30px;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    .pagination {
+      margin-top: 10px;
+    }
+
+    .pagination button {
+      padding: 6px 12px;
+      margin: 2px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #007BFF;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>查詢紀錄</h2>
+
+  <form id="query-form" class="form-inline">
+    <div class="form-group">
+      <label for="phone">手機號碼：</label>
+      <input type="tel" id="phone" name="phone" 
+             placeholder="0912345678"
+             pattern="09[0-9]{8}"
+             title="請輸入正確的台灣手機號碼，例如：0912345678">
+    </div>
+
+    <div class="form-group">
+      <label for="spec">規格：</label>
+      <input type="text" id="spec" name="spec" placeholder="請輸入規格">
+    </div>
+
+    <div class="form-group">
+      <label for="date-range">日期區間：</label>
+      <input type="text" id="date-range" name="date-range" placeholder="請選擇日期區間" required>
+    </div>
+
+    <button type="submit">查詢</button>
+  </form>
+
+  <div id="result"></div>
+
+  <!-- flatpickr -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    const today = new Date();
+    const monthAgo = new Date();
+    monthAgo.setMonth(today.getMonth() - 6);
+
+    flatpickr("#date-range", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      maxDate: today,
+      minDate: monthAgo,
+      locale: "zh_tw"
+    });
+
+    const resultDiv = document.getElementById("result");
+    let tableData = [];
+    let currentPage = 1;
+    const rowsPerPage = 20;
+
+    function renderTable(data, page = 1) {
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const paginated = data.slice(start, end);
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>商家名稱</th>
+              <th>手機號碼</th>
+              <th>規格</th>
+              <th>時間</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${paginated.map(row => `
+              <tr>
+                <td>${row.商家名稱}</td>
+                <td>${row.手機號碼}</td>
+                <td>${row.規格}</td>
+                <td>${row.時間}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="pagination">
+          ${Array.from({ length: Math.ceil(data.length / rowsPerPage) }, (_, i) => `
+            <button class="${i + 1 === page ? 'active' : ''}" data-page="${i + 1}">${i + 1}</button>
+          `).join('')}
+        </div>
+      `;
+
+      resultDiv.innerHTML = html;
+
+      document.querySelectorAll(".pagination button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentPage = parseInt(btn.dataset.page);
+          renderTable(tableData, currentPage);
+        });
+      });
+    }
+
+    document.getElementById("query-form").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const phoneInput = document.getElementById("phone");
+      const specInput = document.getElementById("spec");
+      const dateRangeInput = document.getElementById("date-range");
+
+      const phone = phoneInput.value.trim();
+      const spec = specInput.value.trim();
+      const dateRange = dateRangeInput.value.trim();
+
+      if (!phone && !spec) {
+        resultDiv.innerHTML = `<p style="color:red;">請至少填寫「手機號碼」或「規格」。</p>`;
+        return;
+      }
+
+      if (!dateRange) {
+        resultDiv.innerHTML = `<p style="color:red;">請選擇日期區間。</p>`;
+        return;
+      }
+
+      const [startDate, endDate] = dateRange.split(" to ");
+
+      // 呼叫後端 API
+      try {
+        const response = await fetch('/lut-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone,
+            spec,
+            startDate,
+            endDate
+          })
+        });
+
+        if (!response.ok) throw new Error("伺服器錯誤");
+
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          resultDiv.innerHTML = "<p>查無資料。</p>";
+          return;
+        }
+
+        tableData = data;
+        currentPage = 1;
+        renderTable(tableData, currentPage);
+
+        // 清空欄位
+        phoneInput.value = "";
+        specInput.value = "";
+        dateRangeInput._flatpickr.clear();
+
+      } catch (error) {
+        resultDiv.innerHTML = `<p style="color:red;">查詢失敗：${error.message}</p>`;
+      }
+    });
+  </script>
+
+</body>
+</html>

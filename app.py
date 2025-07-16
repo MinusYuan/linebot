@@ -205,6 +205,26 @@ def lut_api(auth):
     zero_df = zero_df[zero_stock_seen_cols.values()]
     return jsonify({'with_stock': df.to_dict('records'), 'no_stock': zero_df.to_dict('records')})
 
+@app.route("/lut-log-history", methods=['GET'])
+@requires_auth
+def lut_log_history(auth):
+    api_user = auth.username
+    api_pass = auth.password
+    api_url = os.environ.get("SELF_URL", None)
+    return render_template("lut_log.html", user=api_user, pw=api_pass, url=api_url)
+
+@app.route('/lut-log', methods=['POST'])
+@requires_auth
+def lut_log(auth):
+    data = request.get_json()
+    print(f"lut_log: {data}")
+    df = pd.DataFrame([
+        {"商家名稱": "商家A", "手機號碼": "0912345678", "規格": "紅色", "時間": "2025-07-01 10:00:00"},
+        {"商家名稱": "商家B", "手機號碼": "0922333444", "規格": "藍色", "時間": "2025-07-02 11:00:00"},
+        {"商家名稱": "商家C", "手機號碼": "0933444555", "規格": "黑色", "時間": "2025-07-03 12:00:00"}
+    ])
+    return jsonify(df.to_dict(orient='records'))
+
 def keep_awake():
     url = os.getenv('SELF_URL', None)
     if not url:
