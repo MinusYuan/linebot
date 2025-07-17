@@ -9,6 +9,13 @@
       font-family: Arial, sans-serif;
       margin: 40px;
     }
+	
+	.query-info {
+     margin-bottom: 15px;
+     font-weight: bold;
+      color: red;
+     font-size: 18px;
+	}
 
     .form-inline {
       display: flex;
@@ -126,7 +133,7 @@
       const paginated = data.slice(start, end);
 
       const queryInfoHtml = `
-        <div style="margin-bottom: 15px;">
+        <div class="query-info">
           <strong>查詢條件：</strong>
           ${lastQuery.phone ? `手機號碼：${lastQuery.phone}　` : ""}
           ${lastQuery.spec ? `規格：${lastQuery.spec}　` : ""}
