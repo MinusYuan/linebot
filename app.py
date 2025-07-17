@@ -215,7 +215,7 @@ def lut_log_history(auth):
 
 @app.route("/lut-log-admin", methods=['GET'])
 @requires_auth
-def lut_log_history(auth):
+def lut_log_admin(auth):
     api_user = auth.username
     api_pass = auth.password
     api_url = os.environ.get("SELF_URL", None)
