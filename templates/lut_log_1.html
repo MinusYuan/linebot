@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>查詢表單</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+
+    .form-inline {
+      display: flex;
+      align-items: flex-end;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 30px;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .pagination {
+      margin-top: 10px;
+    }
+
+    .pagination button {
+      padding: 6px 12px;
+      margin: 2px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: #007BFF;
+      color: white;
+    }
+
+    .query-info {
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: red;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>查詢紀錄</h2>
+
+  <form id="query-form" class="form-inline">
+    <div class="form-group">
+      <label for="phone">手機號碼：</label>
+      <input type="tel" id="phone" name="phone" placeholder="0912345678"
+             pattern="09[0-9]{8}" title="請輸入正確的台灣手機號碼，例如：0912345678">
+    </div>
+
+    <div class="form-group">
+      <label for="spec">規格：</label>
+      <input type="text" id="spec" name="spec" placeholder="請輸入規格">
+    </div>
+
+    <div class="form-group">
+      <label for="date-range">日期區間：</label>
+      <input type="text" id="date-range" name="date-range" placeholder="請選擇日期區間" required>
+    </div>
+
+    <button type="submit">查詢</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isSameOrAfter.js"></script>
+  <script>
+    dayjs.extend(dayjs_plugin_isSameOrAfter);
+
+    const today = dayjs();
+    const sixMonthsAgo = today.subtract(6, 'month');
+    const limitDate = dayjs('2025-07-15');
+    const minDate = sixMonthsAgo.isAfter(limitDate) ? sixMonthsAgo : limitDate;
+
+    flatpickr("#date-range", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      maxDate: today.format('YYYY-MM-DD'),
+      minDate: minDate.format('YYYY-MM-DD'),
+      locale: "zh_tw"
+    });
+
+    const resultDiv = document.getElementById("result");
+    let tableData = [];
+    let currentPage = 1;
+    const rowsPerPage = 50;
+    let lastQuery = {};
+    let currentSort = "phone";
+    let sortAsc = true;
+
+    function multiSort(data, sortBy, asc) {
+      return data.sort((a, b) => {
+        const dir = asc ? 1 : -1;
+        const compare = (v1, v2, type = "text", direction = 1) => {
+          if (type === "date") return (new Date(v1) - new Date(v2)) * direction;
+          return v1.localeCompare(v2) * direction;
+        };
+
+        if (sortBy === "phone") {
+          const c1 = compare(a.phone, b.phone, "text", dir);
+          if (c1 !== 0) return c1;
+          const c2 = compare(a.spec, b.spec, "text", 1);
+          if (c2 !== 0) return c2;
+          return compare(a.created_timestamp, b.created_timestamp, "date", 1);
+        } else if (sortBy === "spec") {
+          const c1 = compare(a.spec, b.spec, "text", dir);
+          if (c1 !== 0) return c1;
+          const c2 = compare(a.phone, b.phone, "text", 1);
+          if (c2 !== 0) return c2;
+          return compare(a.created_timestamp, b.created_timestamp, "date", 1);
+        } else {
+          return compare(a.created_timestamp, b.created_timestamp, "date", dir);
+        }
+      });
+    }
+
+    function renderTable(data, page = 1) {
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const paginated = data.slice(start, end);
+
+      const queryInfoHtml = `
+        <div class="query-info">
+          查詢條件：
+          ${lastQuery.phone ? `手機號碼：${lastQuery.phone}　` : ""}
+          ${lastQuery.spec ? `規格：${lastQuery.spec}　` : ""}
+          日期區間：${lastQuery.startDate} ~ ${lastQuery.endDate}
+        </div>
+      `;
+
+      const tableHtml = `
+        <table>
+          <thead>
+            <tr>
+              <th class="sortable" id="sort-phone">手機號碼 ${currentSort === 'phone' ? (sortAsc ? '↑' : '↓') : ''}</th>
+              <th class="sortable" id="sort-spec">規格 ${currentSort === 'spec' ? (sortAsc ? '↑' : '↓') : ''}</th>
+              <th class="sortable" id="sort-time">查詢時間 ${currentSort === 'time' ? (sortAsc ? '↑' : '↓') : ''}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${paginated.map(row => `
+              <tr>
+                <td>${row.phone}</td>
+                <td>${row.spec}</td>
+                <td>${row.created_timestamp}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="pagination">
+          ${Array.from({ length: Math.ceil(data.length / rowsPerPage) }, (_, i) => `
+            <button class="${i + 1 === page ? 'active' : ''}" data-page="${i + 1}">${i + 1}</button>
+          `).join('')}
+        </div>
+      `;
+
+      resultDiv.innerHTML = queryInfoHtml + tableHtml;
+
+      document.querySelectorAll(".pagination button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentPage = parseInt(btn.dataset.page);
+          renderTable(tableData, currentPage);
+        });
+      });
+
+      addSortHandlers();
+      addExportButton(); // 匯出 CSV
+    }
+
+    function addSortHandlers() {
+      document.getElementById("sort-phone").addEventListener("click", () => {
+        currentSort = "phone";
+        sortAsc = !sortAsc;
+        tableData = multiSort(tableData, currentSort, sortAsc);
+        renderTable(tableData, 1);
+      });
+
+      document.getElementById("sort-spec").addEventListener("click", () => {
+        currentSort = "spec";
+        sortAsc = !sortAsc;
+        tableData = multiSort(tableData, currentSort, sortAsc);
+        renderTable(tableData, 1);
+      });
+
+      document.getElementById("sort-time").addEventListener("click", () => {
+        currentSort = "time";
+        sortAsc = !sortAsc;
+        tableData = multiSort(tableData, currentSort, sortAsc);
+        renderTable(tableData, 1);
+      });
+    }
+
+    function addExportButton() {
+      const exportBtn = document.createElement("button");
+      exportBtn.textContent = "匯出 CSV";
+      exportBtn.style.marginTop = "10px";
+      exportBtn.id = "export-btn";
+      resultDiv.appendChild(exportBtn);
+
+      exportBtn.addEventListener("click", () => {
+        exportToCSV(tableData);
+      });
+    }
+
+    function exportToCSV(data) {
+      if (!data || data.length === 0) {
+        alert("沒有資料可匯出。");
+        return;
+      }
+
+      const headers = ["手機號碼", "規格", "查詢時間"];
+      const rows = data.map(row => [
+        row.phone,
+        row.spec,
+        row.created_timestamp
+      ]);
+
+      const csvContent = [headers, ...rows]
+        .map(e => e.map(v => `"${(v || "").toString().replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([`\uFEFF${csvContent}`], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const filename = `查詢結果_${dayjs().format("YYYYMMDD_HHmmss")}.csv`;
+
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("query-form").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const phoneInput = document.getElementById("phone");
+      const specInput = document.getElementById("spec");
+      const dateRangeInput = document.getElementById("date-range");
+
+      const phone = phoneInput.value.trim();
+      const spec = specInput.value.trim();
+      const dateRange = dateRangeInput.value.trim();
+
+      if (!phone && !spec) {
+        resultDiv.innerHTML = `<p style="color:red;">請至少填寫「手機號碼」或「規格」。</p>`;
+        return;
+      }
+
+      if (!dateRange) {
+        resultDiv.innerHTML = `<p style="color:red;">請選擇日期區間。</p>`;
+        return;
+      }
+
+      let [startDate, endDate] = dateRange.split(" to ");
+      if (!endDate) endDate = startDate;
+
+      lastQuery = { phone, spec, startDate, endDate };
+
+      try {
+        const response = await fetch('/lut-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, spec, startDate, endDate })
+        });
+
+        if (!response.ok) throw new Error("伺服器錯誤");
+
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          resultDiv.innerHTML = "<p>查無資料。</p>";
+          return;
+        }
+
+        currentSort = "phone";
+        sortAsc = true;
+        tableData = multiSort(data, currentSort, sortAsc);
+        currentPage = 1;
+        renderTable(tableData, currentPage);
+
+      } catch (error) {
+        resultDiv.innerHTML = `<p style="color:red;">查詢失敗：${error.message}</p>`;
+      }
+    });
+  </script>
+
+</body>
+</html>

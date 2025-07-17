@@ -213,6 +213,14 @@ def lut_log_history(auth):
     api_url = os.environ.get("SELF_URL", None)
     return render_template("lut_log.html", user=api_user, pw=api_pass, url=api_url)
 
+@app.route("/lut-log-admin", methods=['GET'])
+@requires_auth
+def lut_log_history(auth):
+    api_user = auth.username
+    api_pass = auth.password
+    api_url = os.environ.get("SELF_URL", None)
+    return render_template("lut_log_1.html", user=api_user, pw=api_pass, url=api_url)
+
 @app.route('/lut-log', methods=['POST'])
 @requires_auth
 def lut_log(auth):
