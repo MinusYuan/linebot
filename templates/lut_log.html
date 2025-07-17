@@ -9,13 +9,6 @@
       font-family: Arial, sans-serif;
       margin: 40px;
     }
-	
-	.query-info {
-     margin-bottom: 15px;
-     font-weight: bold;
-      color: red;
-     font-size: 18px;
-	}
 
     .form-inline {
       display: flex;
@@ -76,6 +69,13 @@
       background-color: #007BFF;
       color: white;
     }
+
+    .query-info {
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: red;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
@@ -107,16 +107,21 @@
   <div id="result"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isSameOrAfter.js"></script>
   <script>
-    const today = new Date();
-    const monthAgo = new Date();
-    monthAgo.setMonth(today.getMonth() - 6);
+    dayjs.extend(dayjs_plugin_isSameOrAfter);
+
+    const today = dayjs();
+    const sixMonthsAgo = today.subtract(6, 'month');
+    const limitDate = dayjs('2025-07-15');
+    const minDate = sixMonthsAgo.isAfter(limitDate) ? sixMonthsAgo : limitDate;
 
     flatpickr("#date-range", {
       mode: "range",
       dateFormat: "Y-m-d",
-      maxDate: today,
-      minDate: monthAgo,
+      maxDate: today.format('YYYY-MM-DD'),
+      minDate: minDate.format('YYYY-MM-DD'),
       locale: "zh_tw"
     });
 
@@ -134,7 +139,7 @@
 
       const queryInfoHtml = `
         <div class="query-info">
-          <strong>查詢條件：</strong>
+          查詢條件：
           ${lastQuery.phone ? `手機號碼：${lastQuery.phone}　` : ""}
           ${lastQuery.spec ? `規格：${lastQuery.spec}　` : ""}
           日期區間：${lastQuery.startDate} ~ ${lastQuery.endDate}
@@ -171,7 +176,6 @@
 
       resultDiv.innerHTML = queryInfoHtml + tableHtml;
 
-      // 綁定分頁按鈕
       document.querySelectorAll(".pagination button").forEach(btn => {
         btn.addEventListener("click", () => {
           currentPage = parseInt(btn.dataset.page);
@@ -179,7 +183,6 @@
         });
       });
 
-      // 綁定排序按鈕
       document.getElementById("sort-time").addEventListener("click", () => {
         sortAsc = !sortAsc;
         tableData.sort((a, b) => {
@@ -235,7 +238,6 @@
 
         tableData = data;
         currentPage = 1;
-        // 不預設排序，保持原始順序
         renderTable(tableData, currentPage);
 
         phoneInput.value = "";
