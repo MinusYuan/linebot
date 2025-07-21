@@ -401,7 +401,7 @@
         const headers = ["商家名稱", "手機號碼", "規格", "查詢時間"];
         const rows = data.map((row) => [
           row.merchant_name,
-          row.phone,
+          `="${row.phone}"`,
           row.spec,
           row.created_timestamp,
         ]);
