@@ -425,7 +425,8 @@
             .join("\n");
 
         // 下載 CSV
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const BOM = "\uFEFF"; // UTF-8 BOM
+        const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
