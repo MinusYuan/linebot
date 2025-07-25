@@ -109,6 +109,7 @@
       font-size: 16px;
       border-radius: 4px;
     }
+
     #export-csv:hover {
       background-color: #218838;
     }
@@ -121,7 +122,7 @@
     <div class="form-group">
       <label for="phone">手機號碼：</label>
       <input type="tel" id="phone" name="phone" placeholder="0912345678"
-			 pattern="09[0-9]{8}" title="請輸入正確的台灣手機號碼，例如：0912345678" />
+        pattern="09[0-9]{8}" title="請輸入正確的台灣手機號碼，例如：0912345678" />
     </div>
 
     <div class="form-group">
@@ -146,14 +147,12 @@
     dayjs.extend(dayjs_plugin_isSameOrAfter);
 
     (() => {
-      // 常數定義
       const SORT_KEYS = {
         PHONE: "phone",
         SPEC: "spec",
         TIME: "time",
       };
 
-      // 全域狀態管理
       const state = {
         tableData: [],
         currentPage: 1,
@@ -163,14 +162,12 @@
         sortAsc: true,
       };
 
-      // DOM 元素快取
       const resultDiv = document.getElementById("result");
       const queryForm = document.getElementById("query-form");
       const phoneInput = document.getElementById("phone");
       const specInput = document.getElementById("spec");
       const dateRangeInput = document.getElementById("date-range");
 
-      // 初始化 flatpickr 和日期範圍限制
       const today = dayjs();
       const sixMonthsAgo = today.subtract(6, "month");
       const limitDate = dayjs("2025-07-15");
@@ -184,48 +181,34 @@
         locale: "zh_tw",
       });
 
-      // 多欄位排序函式
       function multiSort(data, sortKey, asc) {
         const sorted = [...data];
         const direction = asc ? 1 : -1;
 
         switch (sortKey) {
           case SORT_KEYS.PHONE:
-            // 降序只有 phone 反向，其餘皆正向
             sorted.sort((a, b) => {
               const phoneDiff = asc
                 ? a.phone.localeCompare(b.phone)
                 : b.phone.localeCompare(a.phone);
               if (phoneDiff !== 0) return phoneDiff;
-
-              // 規格 升序
               const specDiff = a.spec.localeCompare(b.spec);
               if (specDiff !== 0) return specDiff;
-
-              // 時間 升序
               return new Date(a.created_timestamp) - new Date(b.created_timestamp);
             });
             break;
-
           case SORT_KEYS.SPEC:
-            // 降序只有 spec 反向，其餘皆正向
             sorted.sort((a, b) => {
               const specDiff = asc
                 ? a.spec.localeCompare(b.spec)
                 : b.spec.localeCompare(a.spec);
               if (specDiff !== 0) return specDiff;
-
-              // phone 升序
               const phoneDiff = a.phone.localeCompare(b.phone);
               if (phoneDiff !== 0) return phoneDiff;
-
-              // 時間 升序
               return new Date(a.created_timestamp) - new Date(b.created_timestamp);
             });
             break;
-
           case SORT_KEYS.TIME:
-            // 只根據時間排序
             sorted.sort((a, b) => {
               const dateA = new Date(a.created_timestamp);
               const dateB = new Date(b.created_timestamp);
@@ -237,7 +220,6 @@
         return sorted;
       }
 
-      // 建立查詢條件描述文字
       function getQueryInfoHtml() {
         return `
           <div class="query-info">
@@ -249,7 +231,6 @@
         `;
       }
 
-      // 建立表格頭，帶入排序狀態 class
       function getTableHeaderHtml() {
         const sortKey = state.currentSortKey;
         const asc = state.sortAsc;
@@ -266,7 +247,6 @@
         `;
       }
 
-      // 建立表格 body
       function getTableBodyHtml(data) {
         return `
           <tbody>
@@ -286,7 +266,6 @@
         `;
       }
 
-      // 建立分頁按鈕
       function getPaginationHtml(totalRows) {
         const totalPages = Math.ceil(totalRows / state.rowsPerPage);
         if (totalPages <= 1) return "";
@@ -302,7 +281,6 @@
         `;
       }
 
-      // 渲染整張表格及分頁
       function renderTable(data, page = 1) {
         state.currentPage = page;
 
@@ -310,7 +288,6 @@
         const end = start + state.rowsPerPage;
         const paginated = data.slice(start, end);
 
-        // 建立匯出按鈕 (放表格上方)
         const exportBtnHtml = `<button id="export-csv">匯出 CSV</button>`;
 
         const html = `
@@ -330,7 +307,6 @@
         attachExportHandler();
       }
 
-      // 綁定分頁事件
       function attachPaginationHandlers() {
         const buttons = resultDiv.querySelectorAll(".pagination button");
         buttons.forEach((btn) => {
@@ -343,7 +319,6 @@
         });
       }
 
-      // 綁定排序事件 (事件代理)
       function attachSortHandlers() {
         const thead = resultDiv.querySelector("thead");
         if (!thead) return;
@@ -366,13 +341,10 @@
         });
       }
 
-      // 改變排序方式
       function changeSort(sortKey) {
         if (state.currentSortKey === sortKey) {
-          // 同欄位則切換升降序
           state.sortAsc = !state.sortAsc;
         } else {
-          // 換欄位時預設升序
           state.currentSortKey = sortKey;
           state.sortAsc = true;
         }
@@ -380,7 +352,6 @@
         renderTable(state.tableData, 1);
       }
 
-      // 綁定匯出 CSV 按鈕
       function attachExportHandler() {
         const exportBtn = document.getElementById("export-csv");
         if (!exportBtn) return;
@@ -390,14 +361,12 @@
         });
       }
 
-      // 匯出 CSV
       function exportCSV(data) {
         if (!data || data.length === 0) {
           alert("無資料可匯出");
           return;
         }
 
-        // CSV 標題 (含商家名稱)
         const headers = ["商家名稱", "手機號碼", "規格", "查詢時間"];
         const rows = data.map((row) => [
           row.merchant_name,
@@ -406,7 +375,6 @@
           row.created_timestamp,
         ]);
 
-        // 產生 CSV 字串
         const csvContent =
           headers.join(",") +
           "\n" +
@@ -414,7 +382,6 @@
             .map((r) =>
               r
                 .map((v) => {
-                  // 文字中若有逗號、雙引號、換行，需用雙引號包覆且雙引號需重複
                   if (/[,\"\n]/.test(v)) {
                     return '"' + v.replace(/"/g, '""') + '"';
                   }
@@ -424,8 +391,7 @@
             )
             .join("\n");
 
-        // 下載 CSV
-        const BOM = "\uFEFF"; // UTF-8 BOM
+        const BOM = "\uFEFF";
         const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -437,18 +403,12 @@
         URL.revokeObjectURL(url);
       }
 
-      // 表單送出事件
       queryForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const phone = phoneInput.value.trim();
         const spec = specInput.value.trim();
         const dateRange = dateRangeInput.value.trim();
-
-        if (!phone && !spec) {
-          resultDiv.innerHTML = `<p style="color:red;">請至少填寫「手機號碼」或「規格」。</p>`;
-          return;
-        }
 
         if (!dateRange) {
           resultDiv.innerHTML = `<p style="color:red;">請選擇日期區間。</p>`;
@@ -457,6 +417,15 @@
 
         let [startDate, endDate] = dateRange.split(" to ");
         if (!endDate) endDate = startDate;
+
+        const start = dayjs(startDate);
+        const end = dayjs(endDate);
+        const diffInDays = end.diff(start, "day");
+
+        if (!phone && !spec && diffInDays > 62) {
+          resultDiv.innerHTML = `<p style="color:red;">請輸入規格或手機號碼或將區間調整為兩個月內。</p>`;
+          return;
+        }
 
         state.lastQuery = { phone, spec, startDate, endDate };
 
@@ -476,12 +445,8 @@
             return;
           }
 
-          // 取得資料並排序，預設用手機號碼排序
           state.tableData = multiSort(data, state.currentSortKey, state.sortAsc);
           renderTable(state.tableData, 1);
-
-          // 保留輸入欄位值（不清除）
-          // dateRangeInput._flatpickr.clear(); // 先註解，保留使用者選擇
         } catch (error) {
           resultDiv.innerHTML = `<p style="color:red;">查詢失敗：${error.message}</p>`;
         }

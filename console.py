@@ -360,7 +360,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
         db.close()
 
     def delete_logs(self, tw_dt):
-        month_ago = get_month_ago(tw_dt, 6).strftime("%Y-%m-%d")
+        month_ago = get_month_ago(tw_dt, 7).strftime("%Y-%m-%d")
         db = firestore.client()
         log_collection = db.collection("log")
         query_lst = log_collection.where(
