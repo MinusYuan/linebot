@@ -98,7 +98,7 @@ def message_text(event):
     maintain_scheduler = os.environ['maintain_scheduler']
     start_mt, end_mt = maintain_scheduler.split('~')
     if start_mt <= tw_cur_time < end_mt and user_id != os.environ['admin_line_uid']:
-        reply = f"此機器人正在維護中，維護時間為: {maintain_scheduler}。"
+        reply = f"此機器人正在維護中，維護時間為: {maintain_scheduler}。\n若有任何需求請洽管理員或業務。"
     else:
         mess = event.message.text.strip().upper()
         reply = con.console(user_id, mess)
