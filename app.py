@@ -142,9 +142,6 @@ def test_push_message():
     
 def check_update():
     tw_cur_time = tw_current_time()
-    # If it's Sunday, we don't check database update or not
-    if tw_cur_time.isoweekday() == 7:
-        return
 
     update_dt_str = con.get_latest_update_time()
     update_dt = datetim_strptime(update_dt_str)
