@@ -179,6 +179,7 @@ def lut_api(auth):
     data = request.get_json()
     spec = data.get('spec', '').strip()
     user = auth.username
+    print(f"user: {user}, data: {data}")
 
     data = con.lut_product(spec)
     d = [q.to_dict() for q in data]
@@ -218,6 +219,7 @@ def lut_log(auth):
         return res[0] if len(res) else ''
 
     data = request.get_json()
+    print(f"Lut-log Data: {data}")
     data = con.lut_log(data)
     df = pd.DataFrame(data=data)
     merchant_lst = con.get_merchant_list()
