@@ -161,6 +161,8 @@
         currentSortKey: SORT_KEYS.PHONE,
         sortAsc: true,
       };
+	  
+	  let invalidDateRange = false;
 
       const resultDiv = document.getElementById("result");
       const queryForm = document.getElementById("query-form");
@@ -179,6 +181,20 @@
         maxDate: today.format("YYYY-MM-DD"),
         minDate: minDate.format("YYYY-MM-DD"),
         locale: "zh_tw",
+		onChange: function(selectedDates, dateStr, instance) {
+		  invalidDateRange = false;
+		  
+          if (selectedDates.length === 2) {
+            const start = dayjs(selectedDates[0]);
+            const end = dayjs(selectedDates[1]);
+            const diff = end.diff(start, "day");
+
+            if (diff > 31) {
+              alert("日期區間不能超過 31 天！");
+              invalidDateRange = true;
+            }
+          }
+        },
       });
 
       function multiSort(data, sortKey, asc) {
@@ -412,6 +428,11 @@
 
         if (!dateRange) {
           resultDiv.innerHTML = `<p style="color:red;">請選擇日期區間。</p>`;
+          return;
+        }
+		
+		if (invalidDateRange) {
+          resultDiv.innerHTML = `<p style="color:red;">日期區間不能超過 31 天，請重新選擇。</p>`;
           return;
         }
 
