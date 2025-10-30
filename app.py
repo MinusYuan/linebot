@@ -285,6 +285,21 @@ def daily_notify():
     generate_reports()
     return "Sent Successfully"
 
+def mail_notify(subject, body, att_lst):
+    mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
+    test_mail = int(os.getenv('test'))
+    if test_mail:
+        mail_to_list, mail_bcc_list = ['rod92540@gmail.com'], []
+
+    mail = EMail(os.getenv('EMAIL_KEY'))
+    mail.send(
+        mail_to_list,
+        subject,
+        body,
+        attachments=att_lst,
+        bcc_emails=mail_bcc_list
+    )
+
 def generate_reports():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
@@ -342,11 +357,6 @@ def generate_reports():
     keywords, users = Counter(), Counter()
     sheet_list = []
 
-    mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
-    test_mail = int(os.getenv('test'))
-    if test_mail:
-        mail_to_list, mail_bcc_list = ['rod92540@gmail.com'], []
-
     merchant_lst = con.get_merchant_list()
     with pd.ExcelWriter(att_lst[0]) as writer:
         for freq in ('D', 'W', 'M'):
@@ -380,15 +390,34 @@ def generate_reports():
         auto_adjust_width(ws)
     wb.save(att_lst[0])
 
-    mail = EMail(os.getenv('EMAIL_KEY'))
-    mail.send(
-        mail_to_list,
-        f"每日報表 - TTShop {ytd_dt}",
-        "您好，<br><br>此為系統每日自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。",
-        attachments=att_lst,
-        bcc_emails=mail_bcc_list
-    )
+    mail_notify(f"每日報表 - TTShop {ytd_dt}", "您好，<br><br>此為系統每日自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。", att_lst)
     print(f"Daily Notify - Done")
+
+def generate_user_reports():
+    cur_dt = tw_current_time()
+    first_day_cur_month = cur_dt.replace(day=1)
+    if (cur_dt.weekday() != 6) or (cur_dt.strftime('%W') != first_day_cur_month.strftime('%W')):
+        print(f"No need to generate user reports")
+        return
+
+    print(f"Generate user report - Start")
+    end_day_of_last_month = get_diff_days_date(cur_dt.day)
+    data = {
+        'startDate': end_day_of_last_month.replace(day=1).strftime('%Y-%m-%d'),
+        'endDate': end_day_of_last_month.strftime('%Y-%m-%d')
+    }
+    res = con.lut_log(data)
+    df = pd.DataFrame(data=res)
+    merchant_lst = con.get_merchant_list()
+    df['merchant_name'] = df['phone'].apply(get_merchant_name)
+    df = df.sort_values(by=['phone', 'spec', 'created_timestamp'])
+
+    year_month = end_day_of_last_month.strftime('%Y-%m')
+    output_fn = f"user_usage_{year_month}.xlsx"
+    df.to_csv(output_fn, index=False, header=True, encoding='utf-8-sig')
+
+    mail_notify(f"每月使用者報表 - TTShop {year_month}", "您好，<br><br>此為系統每月自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。", output_fn)
+    print(f"Generate user report - Done")
 
 # Use scheduler to health check
 scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 2})
