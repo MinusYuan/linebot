@@ -282,12 +282,11 @@ def daily_notify():
     if token != os.getenv('token', None):
         return "OK"
 
-    generate_reports()
+    generate_lut_reports()
     return "Sent Successfully"
 
-def mail_notify(subject, body, att_lst):
+def mail_notify(subject, body, att_lst, test_mail=False):
     mail_to_list, mail_bcc_list = os.getenv('mail_to').split(','), os.getenv('mail_bcc').split(',')
-    test_mail = int(os.getenv('test'))
     if test_mail:
         mail_to_list, mail_bcc_list = ['rod92540@gmail.com'], []
 
@@ -299,8 +298,11 @@ def mail_notify(subject, body, att_lst):
         attachments=att_lst,
         bcc_emails=mail_bcc_list
     )
+def generate_all_reports():
+    generate_lut_reports()
+    generate_user_reports()
 
-def generate_reports():
+def generate_lut_reports():
     def sorted_split_dict(items):
         sorted_d = sorted(items, key=lambda x: x[1], reverse=True)
         return zip(*sorted_d)
@@ -358,6 +360,7 @@ def generate_reports():
     sheet_list = []
 
     merchant_lst = con.get_merchant_list()
+    test_mail = int(os.getenv('test'))
     with pd.ExcelWriter(att_lst[0]) as writer:
         for freq in ('D', 'W', 'M'):
             if freq == 'D' or (freq == 'W' and ytd.weekday() == 5) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)) or test_mail:
@@ -390,13 +393,14 @@ def generate_reports():
         auto_adjust_width(ws)
     wb.save(att_lst[0])
 
-    mail_notify(f"每日報表 - TTShop {ytd_dt}", "您好，<br><br>此為系統每日自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。", att_lst)
+    mail_notify(f"每日報表 - TTShop {ytd_dt}", "您好，<br><br>此為系統每日自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。", att_lst, test_mail)
     print(f"Daily Notify - Done")
 
 def generate_user_reports():
     cur_dt = tw_current_time()
     first_day_cur_month = cur_dt.replace(day=1)
-    if (cur_dt.weekday() != 6) or (cur_dt.strftime('%W') != first_day_cur_month.strftime('%W')):
+    test_mail = int(os.getenv('test'))
+    if ((cur_dt.weekday() != 6) or (cur_dt.strftime('%W') != first_day_cur_month.strftime('%W'))) and not test_mail:
         print(f"No need to generate user reports")
         return
 
@@ -416,7 +420,7 @@ def generate_user_reports():
     output_fn = f"user_usage_{year_month}.xlsx"
     df.to_csv(output_fn, index=False, header=True, encoding='utf-8-sig')
 
-    mail_notify(f"每月使用者報表 - TTShop {year_month}", "您好，<br><br>此為系統每月自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。", output_fn)
+    mail_notify(f"每月使用者報表 - TTShop {year_month}", "您好，<br><br>此為系統每月自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。", output_fn, test_mail)
     print(f"Generate user report - Done")
 
 # Use scheduler to health check
@@ -427,7 +431,7 @@ trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", secon
 trigger3 = CronTrigger(year="*", month="*", day="*", hour="0-11", minute="40", second="0")
 scheduler.add_job(keep_awake, trigger=trigger)
 scheduler.add_job(daily_update_employee_list, trigger=trigger1)
-scheduler.add_job(generate_reports, trigger=trigger2)
+scheduler.add_job(generate_all_reports, trigger=trigger2)
 scheduler.add_job(check_update, trigger=trigger3)
 scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
