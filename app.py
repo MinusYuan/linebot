@@ -413,7 +413,7 @@ def generate_user_reports():
     end_day_of_last_month = get_diff_days_date(cur_dt.day)
     data = {
         'startDate': end_day_of_last_month.replace(day=1).strftime('%Y-%m-%d'),
-        'endDate': end_day_of_last_month.replace(day=1).strftime('%Y-%m-%d')
+        'endDate': end_day_of_last_month.strftime('%Y-%m-%d')
     }
     res = con.lut_log(data)
     df = pd.DataFrame(data=res)
@@ -423,8 +423,8 @@ def generate_user_reports():
     merged_df = merged_df[cols].sort_values(by=['phone', 'spec', 'created_timestamp'])
 
     year_month = end_day_of_last_month.strftime('%Y-%m')
-    output_fn = f"user_usage_{year_month}.xlsx"
-    df.to_csv(output_fn, index=False, header=True, encoding='utf-8-sig')
+    output_fn = f"user_usage_{year_month}.csv"
+    merged_df.to_csv(output_fn, index=False, header=True, encoding='utf-8-sig')
 
     mail_notify(f"每月使用者報表 - TTShop {year_month}", "您好，<br><br>此為系統每月自動產生的報告，若有任何疑慮請聯絡我們。<br>謝謝。", output_fn, test_mail)
     print(f"Generate user report - Done")
