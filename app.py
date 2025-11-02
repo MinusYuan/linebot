@@ -402,10 +402,6 @@ def generate_lut_reports():
     print(f"Daily Notify - Done")
 
 def generate_user_reports():
-    def get_merchant_name(phone_number):
-        res = [d.get('merchant_name', '') for d in merchant_lst if d['phone_number'] == phone_number]
-        return res[0] if len(res) else ''
-
     cur_dt = tw_current_time()
     first_day_cur_month = cur_dt.replace(day=1)
     test_mail = int(os.getenv('test'))
@@ -417,13 +413,15 @@ def generate_user_reports():
     end_day_of_last_month = get_diff_days_date(cur_dt.day)
     data = {
         'startDate': end_day_of_last_month.replace(day=1).strftime('%Y-%m-%d'),
-        'endDate': end_day_of_last_month.strftime('%Y-%m-%d')
+        'endDate': end_day_of_last_month.replace(day=1).strftime('%Y-%m-%d')
     }
     res = con.lut_log(data)
     df = pd.DataFrame(data=res)
-    merchant_lst = con.get_merchant_list()
+    merchant_df = pd.DataFrame(data=con.get_merchant_list())
     df['merchant_name'] = df['phone'].apply(get_merchant_name)
-    df = df.sort_values(by=['phone', 'spec', 'created_timestamp'])
+    merged_df = df.merge(merchant_df, left_on='phone', right_on='phone_number')
+    cols = df.columns.to_list() + ['merchant_name']
+    merged_df = merged_df.sort_values(by=['phone', 'spec', 'created_timestamp'])
 
     year_month = end_day_of_last_month.strftime('%Y-%m')
     output_fn = f"user_usage_{year_month}.xlsx"
