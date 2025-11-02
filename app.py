@@ -274,15 +274,20 @@ def daily_update_employee_list():
     con.daily_update()
     print(f"Update employee list - Done")
 
-@app.route("/daily_notify", methods=['GET'])
-def daily_notify():
+@app.route("/<report_type>/daily_notify", methods=['GET'])
+def daily_notify(report_type):
     headers = request.headers
     bearer = headers.get('Authorization')
     token = bearer.split()[1]
     if token != os.getenv('token', None):
         return "OK"
 
-    generate_lut_reports()
+    if report_type == 'lut':
+        generate_lut_reports()
+    elif report_type == 'user':
+        generate_user_reports()
+    elif report_type == 'all':
+        generate_all_reports()
     return "Sent Successfully"
 
 def mail_notify(subject, body, att_lst, test_mail=False):
@@ -397,6 +402,10 @@ def generate_lut_reports():
     print(f"Daily Notify - Done")
 
 def generate_user_reports():
+    def get_merchant_name(phone_number):
+        res = [d.get('merchant_name', '') for d in merchant_lst if d['phone_number'] == phone_number]
+        return res[0] if len(res) else ''
+
     cur_dt = tw_current_time()
     first_day_cur_month = cur_dt.replace(day=1)
     test_mail = int(os.getenv('test'))
