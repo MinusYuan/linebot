@@ -418,10 +418,9 @@ def generate_user_reports():
     res = con.lut_log(data)
     df = pd.DataFrame(data=res)
     merchant_df = pd.DataFrame(data=con.get_merchant_list())
-    df['merchant_name'] = df['phone'].apply(get_merchant_name)
     merged_df = df.merge(merchant_df, left_on='phone', right_on='phone_number')
     cols = df.columns.to_list() + ['merchant_name']
-    merged_df = merged_df.sort_values(by=['phone', 'spec', 'created_timestamp'])
+    merged_df = merged_df[cols].sort_values(by=['phone', 'spec', 'created_timestamp'])
 
     year_month = end_day_of_last_month.strftime('%Y-%m')
     output_fn = f"user_usage_{year_month}.xlsx"
