@@ -366,7 +366,7 @@ def generate_lut_reports():
 
     merchant_lst = con.get_merchant_list()
     test_mail = int(os.getenv('test'))
-    with pd.ExcelWriter(att_lst[0]) as writer:
+    with pd.ExcelWriter(att_lst[0], engine="xlsxwriter",) as writer:
         for freq in ('D', 'W', 'M'):
             if freq == 'D' or (freq == 'W' and ytd.weekday() == 5) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)) or test_mail:
                 sheet_name = get_sheet_name(freq)
@@ -430,16 +430,16 @@ def generate_user_reports():
     print(f"Generate user report - Done")
 
 # Use scheduler to health check
-scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 2})
-trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/5", second="15")
-trigger1 = CronTrigger(year="*", month="*", day="*", hour="4,12", minute="0", second="0")
-trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", second="0")
-trigger3 = CronTrigger(year="*", month="*", day="*", hour="0-11", minute="40", second="0")
-scheduler.add_job(keep_awake, trigger=trigger)
-scheduler.add_job(daily_update_employee_list, trigger=trigger1)
-scheduler.add_job(generate_all_reports, trigger=trigger2)
-scheduler.add_job(check_update, trigger=trigger3)
-scheduler.start()
+# scheduler = BackgroundScheduler(daemon=True, job_defaults={'max_instances': 2})
+# trigger = CronTrigger(year="*", month="*", day="*", hour="*", minute="*/5", second="15")
+# trigger1 = CronTrigger(year="*", month="*", day="*", hour="4,12", minute="0", second="0")
+# trigger2 = CronTrigger(year="*", month="*", day="*", hour="1", minute="0", second="0")
+# trigger3 = CronTrigger(year="*", month="*", day="*", hour="0-11", minute="40", second="0")
+# scheduler.add_job(keep_awake, trigger=trigger)
+# scheduler.add_job(daily_update_employee_list, trigger=trigger1)
+# scheduler.add_job(generate_all_reports, trigger=trigger2)
+# scheduler.add_job(check_update, trigger=trigger3)
+# scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
 con = Console()

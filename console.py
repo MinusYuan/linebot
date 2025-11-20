@@ -243,7 +243,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             count = 0
             for key, stock_code in stock_key_mapping:
                 num = int(d.get(key, 0))
-                if num <= 0:
+                role_can_see = line_con_customized_seen.get(key, 0)
+                if num <= 0 or not (role_can_see != 0 and role in role_can_see):
                     continue
 
                 if role in (1, 2) and num >= 8:
@@ -289,7 +290,6 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             return f"找不到此電話號碼: {phone_no}"
         d = query[0].to_dict()
         self.db.collection("users").document(d["uid"]).set({**d, "role": role})
-        role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理員"}
         return f"已將{phone_no}設定為: {role_dict.get(role)}"
 
     def update_cnt(self, text, phone):

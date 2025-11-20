@@ -2,6 +2,8 @@ from utils import get_line_liff_mapping
 
 liff_id_mapping = get_line_liff_mapping('BIND')
 
+role_dict = {0: "消費者", 1: "廠商", 2: "員工", 3: "管理員"}
+
 stock_key_mapping = [
     ('100', '總倉'),
     ('101', '安和'),
@@ -12,6 +14,10 @@ stock_key_mapping = [
     ('601', '竹北'),
     ('1001', '大肚')
 ]
+
+line_con_customized_seen = {
+    '1001': (3, )
+}
 
 role_mapping_table = {
     'TTSU': {
