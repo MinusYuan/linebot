@@ -15,7 +15,6 @@
 import os
 import pandas as pd
 import sys
-import requests
 from argparse import ArgumentParser
 
 from flask import Flask, request, abort, render_template, jsonify
@@ -53,7 +52,7 @@ from console import Console, role_2_seen_cols, role_mapping_table, web_final_col
 from notify import EMail
 from utils import *
 from auth import requires_auth
-
+import api
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
@@ -232,7 +231,7 @@ def keep_awake():
     if not url:
         print("URL Not FOUND.")
         return
-    resp = requests.get(f"{url}/healthcheck")
+    resp = api.call_url(f"{url}/healthcheck")
 
 @app.route('/<source>/line_bind', methods=['GET'])
 def line_bind(source):
@@ -303,9 +302,18 @@ def mail_notify(subject, body, att_lst, test_mail=False):
         attachments=att_lst,
         bcc_emails=mail_bcc_list
     )
+
 def generate_all_reports():
-    generate_lut_reports()
-    generate_user_reports()
+    report_url = os.getenv('report_url')
+    report_token = os.getenv('report_url_token')
+    if os.env('env') == 'LINE' and report_url and report_token:
+        headers = {
+            'Authorization': f'Bearer {report_token}'
+        }
+        api.call_url(report_url, headers=headers)
+    else:
+        generate_lut_reports()
+        generate_user_reports()
 
 def generate_lut_reports():
     def sorted_split_dict(items):
