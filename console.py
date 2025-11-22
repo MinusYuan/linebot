@@ -244,7 +244,7 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
             for key, stock_code in stock_key_mapping:
                 num = int(d.get(key, 0))
                 role_can_see = line_con_customized_seen.get(key, 0)
-                if num <= 0 or not (role_can_see != 0 and role in role_can_see):
+                if num <= 0 or (role_can_see != 0 and role not in role_can_see):
                     continue
 
                 if role in (1, 2) and num >= 8:
