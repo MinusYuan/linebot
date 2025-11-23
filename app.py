@@ -306,7 +306,7 @@ def mail_notify(subject, body, att_lst, test_mail=False):
 def generate_all_reports():
     report_url = os.getenv('report_url')
     report_token = os.getenv('report_url_token')
-    if os.env('env') == 'LINE' and report_url and report_token:
+    if os.getenv('env') == 'LINE' and report_url and report_token:
         headers = {
             'Authorization': f'Bearer {report_token}'
         }
