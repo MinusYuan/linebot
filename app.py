@@ -194,7 +194,7 @@ def lut_api(auth):
     df['橫濱專案'] = df['橫濱專案'].mask(df['橫濱專案'] == 0).fillna('-')
     df['總條數'] = df['總條數'].mask(df['總條數'] < 0).fillna(0)
     df['總條數'] = df['總條數'].mask(df['總條數'] > 20).fillna('20+')
-    for key in ('玉門', '太原', '南投', '竹北', '總倉', '安和', '安和卡'):
+    for key in ('玉門', '太原', '南投', '竹北', '總倉', '安和', '安和卡', '大肚'):
         df[key] = df[key].mask(df[key] < 0).fillna(0)
         df[key] = df[key].mask(df[key] > 8).fillna('8+')
 
@@ -374,7 +374,7 @@ def generate_lut_reports():
 
     merchant_lst = con.get_merchant_list()
     test_mail = int(os.getenv('test'))
-    with pd.ExcelWriter(att_lst[0], engine="xlsxwriter",) as writer:
+    with pd.ExcelWriter(att_lst[0], engine="openpyxl",) as writer:
         for freq in ('D', 'W', 'M'):
             if freq == 'D' or (freq == 'W' and ytd.weekday() == 5) or (freq == 'M' and ytd.day == get_end_day(ytd.year, ytd.month)) or test_mail:
                 sheet_name = get_sheet_name(freq)
