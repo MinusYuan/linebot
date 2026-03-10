@@ -246,6 +246,9 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                 role_can_see = line_con_customized_seen.get(key, 0)
                 if num <= 0 or (role_can_see != 0 and role not in role_can_see):
                     continue
+                    
+                if (role == 1 and key in role_1_no_see) or (role == 2 and key in role_2_no_see):
+                    continue
 
                 if role in (1, 2) and num >= 8:
                     num = "8+"

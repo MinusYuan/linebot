@@ -12,8 +12,11 @@ stock_key_mapping = [
     ('401', '南投'),
     ('501', '太原'),
     ('601', '竹北'),
+    ('888', '台南'),
     ('1001', '大肚')
 ]
+role_1_no_see = []
+role_2_no_see = ['888']
 
 line_con_customized_seen = {
     '1001': (3, )
