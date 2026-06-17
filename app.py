@@ -185,13 +185,15 @@ def lut_api(auth):
     user_key_mapping = role_mapping_table[user]
     all_keys = {**role_2_seen_cols, **user_key_mapping, **web_final_cols}
     tmp_df = pd.DataFrame(data=d)[all_keys.keys()].rename(columns=all_keys)
-    for key in ('現金價', '刷卡價', 'FB合購價', '橫濱專案'):
+    scs = role_2_seen_cols
+    cash, credit, fb, promote = scs['cash_price'], scs['credit_price'], scs['fb_project'], scs['promotional_price']
+    for key in (cash, credit, fb, promote):
         tmp_df[key] = tmp_df[key].astype(int)
         
     df = tmp_df[tmp_df['總條數'] != 0]
     df['年份'] = df['年份'].mask(df['年份'] == '').fillna('-')
-    df['FB合購價'] = df['FB合購價'].mask(df['FB合購價'] == 0).fillna('-')
-    df['橫濱專案'] = df['橫濱專案'].mask(df['橫濱專案'] == 0).fillna('-')
+    df[fb] = df[fb].mask(df[fb] == 0).fillna('-')
+    df[promote] = df[promote].mask(df[promote] == 0).fillna('-')
     df['總條數'] = df['總條數'].mask(df['總條數'] < 0).fillna(0)
     df['總條數'] = df['總條數'].mask(df['總條數'] > 20).fillna('20+')
     for key in ('玉門', '太原', '南投', '竹北', '總倉', '安和', '安和卡', '大肚'):
