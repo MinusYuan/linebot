@@ -234,8 +234,8 @@ RM <手機號碼> \n    -> (移除現有手機號碼綁定)
                     result_s += f"南太平日 {d['district_project']}\n"
                 if d.get('fb_project'):
                     result_s += f"FB合購價 {d['fb_project']}\n"
-                if d.get('hb_project'):
-                    result_s += f"橫濱專案 {d['hb_project']}\n"
+                if d.get('promotional_price'):
+                    result_s += f"限時專案 {d['promotional_price']}\n"
             else:
                 result_s = f"現金價 {d['cash_price']}\n批發價 {d['wholesale']}\n"
             result_s += f"現貨庫存{stock_number_str}"

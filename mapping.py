@@ -65,7 +65,7 @@ role_2_seen_cols = {
     "cash_price": "現金價",
     "credit_price": "刷卡價",
     "fb_project": "FB合購價",
-    "hb_project": "橫濱專案",
+    "promotional_price": "限時專案",
     "stock_no": "總條數",
 }
 
